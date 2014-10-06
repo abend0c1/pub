@@ -793,23 +793,17 @@ void clearAll()
   sayKey(NONE, DELETE);
 }
 
-void setInactivityTimeOut()
-{
-  nTimerDelay = DELAY_IN_SECONDS(3); // Switch focus back to MODE after inactivity
-  TMR3ON_bit = 1;
-}
-
 void setFocus(uint8_t newFocus)
 {
   focus = newFocus;
   selectLine(INFO_LINE);
   if (newFocus == FOCUS_ON_PAGE)
   {
-    sayConst("Menu:   Turn=Sel, Press+Turn=Set Address, Press=OK");
+    sayConst("Main:   Turn=Sel, Press+Turn=Set Address, Press=OK, Press+Hold=Exit");
   }
   else
   {
-    sayConst("Action: Turn=Sel, Press+Turn=Modify, Press=OK, Press+Hold=Delete");
+    sayConst("Action: Turn=Sel, Press+Turn=Modify, Press=OK, Press+Hold=Return");
   }
   selectLine(SELECTION_LINE);
 }
@@ -962,8 +956,7 @@ void programMode()
         nextKnownUsage(rotation);
         selectLine(SELECTION_LINE);
         sayUsage(nActionFocus, &action);
-        sayKey(SHIFT, HOME);
-        setInactivityTimeOut();
+        sayKey(SHIFT, HOME);    // Highlight action
         break;
 
       default:
@@ -978,19 +971,37 @@ void programMode()
     Delay_ms(5);  // Cheap debounce
     if (ROTARY_BUTTON_PRESSED) // If still pressed
     {
+      nTimerDelay = DELAY_IN_SECONDS(1);  // Long press timer
+      bLongPress = FALSE;
+      TMR3ON_bit = 1;
+      while (ROTARY_BUTTON_PRESSED && !rotation && !bLongPress) // pressed but not rotated
+      {
+        if (TMR3ON_bit && nTimerDelay == 0) // If it is a long press
+        {
+          TMR3ON_bit = 0; // Stop the long press timer
+          bLongPress = TRUE;
+        }
+      }
+      TMR3ON_bit = 0; // Stop the long press timer
       switch (focus)
       {
         case FOCUS_ON_PAGE:
-          switch (action.key.page)
+          if (bLongPress)
+          {
+            clearAll();
+            sayConst("Not Saved");    // Leave actions in EEPROM unchanged
+            bProgramMode = FALSE;
+          }
+          else switch (action.key.page)
           {
             case PAGE_EXIT:
               clearAll();
-              sayConst("Saved");
+              sayConst("Saved");      // Save actions in EEPROM
               bProgramMode = FALSE;
               break;
             case PAGE_CANCEL:
               clearAll();
-              sayConst("Cancelled");
+              sayConst("Cancelled");  // Re-instate actions from EEPROM
               bProgramMode = FALSE;
               break;
             case PAGE_REDISPLAY:
@@ -998,28 +1009,29 @@ void programMode()
               break;
             default:
               changePage();
-              setInactivityTimeOut();
               break;
           }
           break;
         case FOCUS_ON_USAGE:
-          changeUsage();
-          setInactivityTimeOut();
+          if (bLongPress)
+          {
+            setFocus(FOCUS_ON_PAGE);
+            sayPage();
+          }
+          else
+          {
+            changeUsage();
+          }
           break;
         default:
           break;
       }
+      while (ROTARY_BUTTON_PRESSED);  // Wait until button is released
     }
     rotation = 0;  // Ignore rotary while button pressed
   }
   else // rotary button is not currently being pressed or rotated
   {
-    if (TMR3ON_bit && nTimerDelay == 0) // If no rotary actions for n seconds
-    {
-      TMR3ON_bit = 0;
-      setFocus(FOCUS_ON_PAGE);
-      sayPage();
-    }
   }
 }
 
