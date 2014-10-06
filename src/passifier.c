@@ -647,7 +647,6 @@ void gotoLine(uint8_t line)
   {
     sayKey(NONE, DOWN);
   }
-  sayKey(NONE, END);
 }
 
 void deleteLastLine()
@@ -665,6 +664,7 @@ const char * getPageDesc (uint8_t page)
     case PAGE_KEYBOARD:         return "Set Keystroke";
     case PAGE_CONSUMER_DEVICE:  return "Set Consumer Device Command";
     case PAGE_SYSTEM_CONTROL:   return "Set System Control Command";
+    case PAGE_DELETE:           return "Delete Action";
     case PAGE_CANCEL:           return "Cancel and Exit";
     case PAGE_REDISPLAY:        return "Redisplay";
     case PAGE_EXIT:             return "Save and Exit";
@@ -684,6 +684,8 @@ void sayPage()
   say(&xWork[1]);
   sayConst("xxx ");
   sayConst(getPageDesc(action.key.page));
+  sayConst(" ");
+  sayHex(nActionFocus);
   sayKey(SHIFT, HOME);   // Highlight this selection
 }
 
@@ -726,6 +728,17 @@ void sayUsage(uint8_t nAction, t_action * pAction)
           break;
         default:
           break;
+      }
+      break;
+    case PAGE_DELETE:
+      sayConst("Delete action ");
+      if (nAction)  // If we have actions to delete
+      {
+        if (pAction->key.usage >= nAction)
+        {
+          pAction->key.usage = nAction-1;
+        }
+        sayHex(pAction->key.usage);
       }
       break;
     default:
@@ -845,6 +858,42 @@ void changePage()
   sayUsage(nActionFocus, &action);  // Overwrite it with a usage from the new page
 }
 
+void deleteAction(uint8_t n)
+{
+  // TODO: Ideally this should also adjust any GOTO actions etc
+  uint8_t i;
+  t_action * pAction;
+
+  if (nAction) // If anything to delete
+  {
+    if (n == nAction) // If it is the action on the end
+    {
+      nAction--; // Delete the last action (effectively)
+      nActionFocus = nAction;
+      deleteLastLine(); // Delete last action from the display
+    }
+    else  // Delete an action which is not at the end
+    {
+      for (i = n; i < nAction; i++)
+      {
+        aAction[i] = aAction[i+1];
+      }
+      nAction--; // We now have one less action in the array
+      nActionFocus = nAction;
+      gotoLine(START_ACTIONS_LINE+n);
+      sayKey(CTL|SHIFT, END); // Select all actions from there onwards
+      sayKey(NONE, DELETE);   // Delete them
+      sayKey(SHIFT, LEFT);    // Select previous line's new line sequence
+      for (i = n; i < nAction; i++)
+      {
+        newLine();
+        sayAction(i);
+      }
+    }
+    selectLine(SELECTION_LINE);
+  }
+}
+
 void changeUsage()
 {
   uint8_t bAppendAction;
@@ -877,46 +926,38 @@ void changeUsage()
     }
     else // The rotary knob is being pressed but not turned
     {
-      if (nTimerDelay == 0) // If it is a long press, delete the last entry
-      {
-        bAppendAction = FALSE;
-        if (nAction) // If anything to delete
-        {
-          nAction--; // Delete the last action (effectively)
-          nActionFocus = nAction;
-          deleteLastLine(); // Delete last action from the display
-          selectLine(SELECTION_LINE);
-        }
-        nTimerDelay = DELAY_IN_SECONDS(0.5);
-      }
-      else
-      {
-      }
     }
   }
   // Rotary button released...
   TMR3ON_bit = 0;
   if (bAppendAction)
   {
-    if (nActionFocus >= nAction) // If we are appending a new action
+    if (action.key.page == PAGE_DELETE) // If we are removing an action
     {
-      if (nActionFocus < ELEMENTS(aAction))  // If room to add an action
-      {
-        sayKey(CTL, END);
-        newLine();
-
-        aAction[nActionFocus] = action;
-        sayAction(nActionFocus);
-        nActionFocus++;
-        nAction = nActionFocus; // Set new high water mark
-      }
+      deleteAction(action.key.usage);
     }
-    else  // We are updating an existing action
+    else  // we are appending or updating an action
     {
-      aAction[nActionFocus] = action;
-      selectLine(START_ACTIONS_LINE+nActionFocus);
-      sayAction(nActionFocus);
-      nActionFocus++; // Assume we will want to update the following action
+      if (nActionFocus >= nAction) // If we are appending a new action
+      {
+        if (nActionFocus < ELEMENTS(aAction))  // If room to add an action
+        {
+          sayKey(CTL, END);
+          newLine();
+
+          aAction[nActionFocus] = action;
+          sayAction(nActionFocus);
+          nActionFocus++;
+          nAction = nActionFocus; // Set new high water mark
+        }
+      }
+      else  // We are updating an existing action
+      {
+        aAction[nActionFocus] = action;
+        selectLine(START_ACTIONS_LINE+nActionFocus);
+        sayAction(nActionFocus);
+        nActionFocus++; // Assume we will want to update the following action
+      }
     }
     selectLine(SELECTION_LINE);
     sayUsage(nActionFocus, &action);
@@ -989,19 +1030,19 @@ void programMode()
           if (bLongPress)
           {
             clearAll();
-            sayConst("Not Saved");    // Leave actions in EEPROM unchanged
+            sayConst("Not saved in EEPROM");    // Leave actions in EEPROM unchanged
             bProgramMode = FALSE;
           }
           else switch (action.key.page)
           {
             case PAGE_EXIT:
               clearAll();
-              sayConst("Saved");      // Save actions in EEPROM
+              sayConst("Saved in EEPROM");      // Save actions in EEPROM
               bProgramMode = FALSE;
               break;
             case PAGE_CANCEL:
               clearAll();
-              sayConst("Cancelled");  // Re-instate actions from EEPROM
+              sayConst("Reloaded from EEPROM");  // Re-instate actions from EEPROM
               bProgramMode = FALSE;
               break;
             case PAGE_REDISPLAY:

@@ -164,6 +164,7 @@ union
 #define PAGE_KEYBOARD              0x00
 #define PAGE_SYSTEM_CONTROL        0x01
 #define PAGE_CONSUMER_DEVICE       0x02
+#define PAGE_DELETE                0x0B
 #define PAGE_CANCEL                0x0C
 #define PAGE_REDISPLAY             0x0D
 #define PAGE_EXIT                  0x0E
