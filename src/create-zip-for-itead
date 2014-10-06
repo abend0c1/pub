@@ -1,0 +1,3 @@
+#!/bin/bash
+set FN=passifier
+zip ./passifier-$1.zip $FN.sch $FN.brd $FN.lbr $FN.gto $FN.gtl $FN.gpi $FN.gbs $FN.gbo $FN.gbl $FN.txt $FN.gts $FN.gko
