@@ -1,5 +1,5 @@
 /*
-  PASSifier! One Button Keyboard
+  PUB! Programmable USB Button
   Copyright (C) 2014 Andrew J. Armstrong
 
   This program is free software; you can redistribute it and/or modify
@@ -25,14 +25,14 @@
 /*
 -------------------------------------------------------------------------------
 
-NAME     - PASSifier One Button Keyboard
+NAME     - PUB! Programmable USB Button
 
-FUNCTION - This is a USB keyboard that can record a sequence of keystrokes (and
-           other USB functions) and then play that sequence back at the press of
-           a button.
+FUNCTION - This is a programmable button on which you can record a sequence of 
+           keystrokes (and other USB functions) and then play that sequence back 
+           when you press it.
 
-FEATURES - 1. Single rotary knob is the only input.
-           2. Can record and replay up to xxx keystrokes.
+FEATURES - 1. Single rotary encoder knob (with push switch) is the only input.
+           2. Can record and replay up to 127 keystrokes (or other "actions").
            3. Absolutely NO HOST DRIVERS required.
 
 PIN USAGE -                      PIC18F25K50
@@ -53,7 +53,7 @@ PIN USAGE -                      PIC18F25K50
              220nF      --- | VUSB 14   15 RC4 | <-> USB D-
                             '------------------'
 
-            Rotary Encoder (e.g. ALPS EC11K0924401):
+            Rotary Encoder with switch (e.g. ALPS EC11K0924401):
 
                             .-------.
              Rotary A   <-- |A     D|--> Rotary button
@@ -103,30 +103,30 @@ CONFIG    - The PIC18F25K50 configuration fuses should be set as follows (items
             CONFIG6L 0F 00001111 =  Default
 
 OPERATION - The user interacts with the system via a digital encoder knob (with
-            a built-in switch) and, when in programming mode, with a host-based
-            text editor program than understands fairly standard editing control
+            a built-in switch) and, when in PROGRAM mode, with a host-based text
+            editor program than understands fairly standard editing control
             sequences.
 
-            In run mode (the default mode) the user simply presses the rotary
-            knob to cause the previously programmed sequence of keystrokes to be
-            sent to the host over the connecting USB cable.
+            In RUN mode (the default mode when the device is plugged into a USB
+            port) the user simply presses the rotary knob to cause the previously 
+            programmed sequence of keystrokes to be sent to the host over the 
+            connecting USB cable.
 
             If the user presses the knob down for more than about 3 seconds,
-            then the device enters the programming mode. The user must already
+            then the device enters PROGRAM mode. The user must already
             have started and given focus to the above-mentioned text editor
             host application because this will be the means of communication
-            with the user.
+            with the user. If you don't do that then the device will inject
+            unwanted keystrokes into the application that currently has the
+            keyboard focus.
 
             - Start a text editor program on the host computer and ensure it
               has keyboard focus.
 
-            - Select the password number in some way? (TODO)
+            - Press and hold the rotary encoder to enter PROGRAM mode.
+              The following prompt will be keyed into the text editor:
 
-            - Press and hold the rotary encoder to enter "programming mode" for
-              that password. The following prompt will be keyed into the text
-              editor:
-
-              PASSifier v.m
+              PUB! v.m
               0    Add Keystroke
               0000
 
@@ -217,7 +217,7 @@ HISTORY  - Date     Ver   By  Reason (most recent at the top please)
 #include <stdint.h>
 #include <built_in.h>
 #include "USBdsc.h"
-#include "passifier.h"
+#include "pub.h"
 
 
 const char * getKeyDescWithNoShift (uint8_t key) // Note: Literals returned as const are in ROM
@@ -269,7 +269,6 @@ uint16_t getPrevConsumer (t_consumerDeviceAction * pAction)
 
 const char * getUsageDesc (t_action * pAction) // Note: Literals returned as const are in ROM
 {
-  uint16_t i;
   switch (pAction->key.page)
   {
     case PAGE_KEYBOARD:
@@ -487,6 +486,45 @@ void disableUSB()
 
 
 
+void saveInEEPROM()
+{
+  uint16_t addr;
+  uint8_t  i;
+
+  EEPROM_Write(0, 0);       // Save something in the first byte
+  EEPROM_Write(1, nAction); // Save number of actions
+  for (i = 0, addr = 2; i < nAction; i++)
+  {
+    EEPROM_Write(addr++, Hi(aAction[i].action));
+    EEPROM_Write(addr++, Lo(aAction[i].action));
+  }
+}
+
+void loadFromEEPROM()
+{
+  t_action * p;
+  uint16_t addr;
+  uint8_t  i;
+
+  // Read any actions present in the EEPROM
+  nAction = EEPROM_Read(1); // Read number of actions
+  if (nAction > ELEMENTS(aAction)) // If EEPROM empty, or number of actions invalid
+    nAction = 0;            // Assume content of EEPROM is NBG
+
+  p = &aAction[0];          // Point to the first element of the actions array
+  for (addr = 2, i = 0; i < nAction; i++)
+  {
+    Hi(*p) = EEPROM_Read(addr++);
+    Lo(*p) = EEPROM_Read(addr++);
+    p++;
+  }
+  
+  // Clear any unused actions to zero
+  for (; i < ELEMENTS(aAction); i++, p++)
+  {
+    p->action = 0;
+  }
+}
 
 
 
@@ -575,11 +613,8 @@ void Prolog()
   button = 0;
   LED = OFF;
 
-  nAction = 0; // Number of entries
-  for (i = 0, p = &aAction[0]; i < ELEMENTS(aAction); i++, p++)
-  {
-    p->action = 0;
-  }
+  loadFromEEPROM();       // Load any existing script from the EEPROM
+  
   action.key.page = PAGE_KEYBOARD;
   action.key.usage = USB_KEY_A;
   action.key.mod.value = 0;
@@ -678,14 +713,24 @@ void sayPage()
   char xWork[3];
 
   selectLine(SELECTION_LINE);
-  sayHex(nActionFocus);
-  sayConst(" ");
+  // sayHex(nActionFocus);
+  sayConst("   ");
   toPrintableHex(action.key.page, &xWork);
   say(&xWork[1]);
   sayConst("xxx ");
   sayConst(getPageDesc(action.key.page));
-  sayConst(" ");
-  sayHex(nActionFocus);
+  switch (action.key.page)
+  {
+    case PAGE_KEYBOARD:
+    case PAGE_SYSTEM_CONTROL:
+    case PAGE_CONSUMER_DEVICE:
+    case PAGE_LOCAL_FUNCTION:
+      sayConst(" at ");
+      sayHex(nActionFocus);
+      break;
+    default:
+      break;
+  }
   sayKey(SHIFT, HOME);   // Highlight this selection
 }
 
@@ -738,6 +783,7 @@ void sayUsage(uint8_t nAction, t_action * pAction)
         {
           pAction->key.usage = nAction-1;
         }
+        sayConst(" at ");
         sayHex(pAction->key.usage);
       }
       break;
@@ -762,7 +808,6 @@ void sayAction(uint8_t n)
 void sayActions()
 {
   uint8_t i;
-  t_action * pAction;
 
   sayKey(CTL, END);
   for (i = 0; i < nAction; i++)
@@ -812,7 +857,7 @@ void setFocus(uint8_t newFocus)
   selectLine(INFO_LINE);
   if (newFocus == FOCUS_ON_PAGE)
   {
-    sayConst("Main:   Turn=Sel, Press+Turn=Set Address, Press=OK, Press+Hold=Exit");
+    sayConst("Main:   Turn=Sel, Press+Turn=Set At, Press=OK, Press+Hold=Exit");
   }
   else
   {
@@ -862,7 +907,6 @@ void deleteAction(uint8_t n)
 {
   // TODO: Ideally this should also adjust any GOTO actions etc
   uint8_t i;
-  t_action * pAction;
 
   if (nAction) // If anything to delete
   {
@@ -968,12 +1012,12 @@ void changeUsage()
 void displayProgrammingMenu()
 {
   clearAll();
-  sayConst("PASSifier 0.90");
+  sayConst("PUB! 0.90");
   newLine();
   newLine();
   newLine();
   newLine();
-  sayConst("Ad Code Action");
+  sayConst("At Code Action");
   sayActions();
   action.key.page = PAGE_KEYBOARD;
   action.key.usage = USB_KEY_A;
@@ -1031,6 +1075,7 @@ void programMode()
           {
             clearAll();
             sayConst("Not saved in EEPROM");    // Leave actions in EEPROM unchanged
+            sayKey(SHIFT, HOME);                // Highlight it
             bProgramMode = FALSE;
           }
           else switch (action.key.page)
@@ -1038,11 +1083,14 @@ void programMode()
             case PAGE_EXIT:
               clearAll();
               sayConst("Saved in EEPROM");      // Save actions in EEPROM
+              sayKey(SHIFT, HOME);              // Highlight it
               bProgramMode = FALSE;
+              saveInEEPROM();
               break;
             case PAGE_CANCEL:
               clearAll();
               sayConst("Reloaded from EEPROM");  // Re-instate actions from EEPROM
+              sayKey(SHIFT, HOME);              // Highlight it
               bProgramMode = FALSE;
               break;
             case PAGE_REDISPLAY:

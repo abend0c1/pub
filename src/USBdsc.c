@@ -1,5 +1,5 @@
 /*
-  Passifier! One Button Keyboard $Rev:  $
+  PUB! Programmable USB Button
   Copyright (C) 2010-2014 Andrew J. Armstrong
 
   This program is free software; you can redistribute it and/or modify
