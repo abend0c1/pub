@@ -3,7 +3,7 @@ PUB! Programmable USB Button
 Program a button to send keystrokes to your computer
 
 
-PUB! is a one-button USB keyboard that you can program with a sequence of keystrokes. When you press the button those keystrokes are "replayed" over a USB connection.
+PUB! is a Programmable USB Button on which you can program with a sequence of keystrokes. When you press the button those keystrokes are "replayed" over a USB connection.
 
 
 
@@ -11,10 +11,21 @@ Features
 --------
 - One-button design (a rotary encoder with a builtin switch)
 - Programmed by using an ordinary text editor as a display (for example, gedit on Linux, or Notepad on Windows)
-- Has a GOTO function, so you can program loops
+- Supports a GOTO function, so you can program loops
 - Can send USB System Control codes (Power off, sleep, wake) to your PC
 - Can send USB Consumer Device functions (e.g. Mute, Play, Pause, Stop, etc.)
 - Requires NO drivers for Windows/Linux etc
+
+
+Futures
+-------
+The possibilities are fairly broad including:
+- Support for a number of "registers" to record state. For example, R0 to R15.
+- Support for basic arithmetic. Add, subtract, etc.
+- Support for conditional logic. For example, Compare to value, Jump on zero, etc.
+- Support for extra inputs. For example, extra buttons, temperature sensor, GPS location etc.
+- It's getting silly now. 
+- Alright ossifer, I'll come quietly...
 
 
 Construction
