@@ -484,26 +484,32 @@ void disableUSB()
   bUSBReady = FALSE;
 }
 
-
+void wait()
+{
+  Delay_ms(20);
+}
 
 void saveInEEPROM()
 {
-  uint16_t addr;
+  t_action * p;
+  uint8_t addr;
   uint8_t  i;
 
   EEPROM_Write(0, 0);       // Save something in the first byte
   EEPROM_Write(1, nAction); // Save number of actions
-  for (i = 0, addr = 2; i < nAction; i++)
+  p = &aAction[0];
+  addr = 2;
+  for (i = 0; i < nAction; i++, p++)
   {
-    EEPROM_Write(addr++, Hi(aAction[i].action));
-    EEPROM_Write(addr++, Lo(aAction[i].action));
+    EEPROM_Write(addr++, Hi(p->action));
+    EEPROM_Write(addr++, Lo(p->action));
   }
 }
 
 void loadFromEEPROM()
 {
   t_action * p;
-  uint16_t addr;
+  uint8_t addr;
   uint8_t  i;
 
   // Read any actions present in the EEPROM
@@ -514,11 +520,10 @@ void loadFromEEPROM()
   p = &aAction[0];          // Point to the first element of the actions array
   for (addr = 2, i = 0; i < nAction; i++)
   {
-    Hi(*p) = EEPROM_Read(addr++);
-    Lo(*p) = EEPROM_Read(addr++);
+    Hi(p->action) = EEPROM_Read(addr++);
+    Lo(p->action) = EEPROM_Read(addr++);
     p++;
   }
-  
   // Clear any unused actions to zero
   for (; i < ELEMENTS(aAction); i++, p++)
   {
@@ -532,9 +537,6 @@ void loadFromEEPROM()
 
 void Prolog()
 {
-  uint8_t i;
-  t_action * p;
-
   ANSELA = 0b00000000;    // Configure all PORTA bits as digital
   ANSELB = 0b00000000;    // Configure all PORTB bits as digital
   ANSELC = 0b00000000;    // Configure all PORTC bits as digital
@@ -700,9 +702,9 @@ const char * getPageDesc (uint8_t page)
     case PAGE_CONSUMER_DEVICE:  return "Set Consumer Device Command";
     case PAGE_SYSTEM_CONTROL:   return "Set System Control Command";
     case PAGE_DELETE:           return "Delete Action";
-    case PAGE_CANCEL:           return "Cancel and Exit";
+    case PAGE_CANCEL:           return "Reload from EEPROM";
     case PAGE_REDISPLAY:        return "Redisplay";
-    case PAGE_EXIT:             return "Save and Exit";
+    case PAGE_EXIT:             return "Save to EEPROM";
     case PAGE_LOCAL_FUNCTION:   return "Set Local Function";
     default:                    return "";
   }
@@ -857,11 +859,11 @@ void setFocus(uint8_t newFocus)
   selectLine(INFO_LINE);
   if (newFocus == FOCUS_ON_PAGE)
   {
-    sayConst("Main:   Turn=Sel, Press+Turn=Set At, Press=OK, Press+Hold=Exit");
+    sayConst("Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit");
   }
   else
   {
-    sayConst("Action: Turn=Sel, Press+Turn=Modify, Press=OK, Press+Hold=Return");
+    sayConst("Action: Turn=Select, Press=OK, Press+Turn=Modify, Press+Hold=Return");
   }
   selectLine(SELECTION_LINE);
 }
@@ -1012,7 +1014,7 @@ void changeUsage()
 void displayProgrammingMenu()
 {
   clearAll();
-  sayConst("PUB! 0.90");
+  sayConst("PUB! " VERSION);
   newLine();
   newLine();
   newLine();
@@ -1081,13 +1083,14 @@ void programMode()
           else switch (action.key.page)
           {
             case PAGE_EXIT:
+              saveInEEPROM();
               clearAll();
               sayConst("Saved in EEPROM");      // Save actions in EEPROM
               sayKey(SHIFT, HOME);              // Highlight it
               bProgramMode = FALSE;
-              saveInEEPROM();
               break;
             case PAGE_CANCEL:
+              loadFromEEPROM();
               clearAll();
               sayConst("Reloaded from EEPROM");  // Re-instate actions from EEPROM
               sayKey(SHIFT, HOME);              // Highlight it

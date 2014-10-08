@@ -1,4 +1,4 @@
-#define VERSION "1.00"
+#define VERSION "0.90"
 
 #define OUTPUT        0
 #define INPUT         1
@@ -91,10 +91,10 @@ typedef union
   uint16_t               action;// ................ = 0x....
 } t_action;
 
-t_action aAction[127];    // 127 x 2-byte actions + 2-byte header fills EEPROM
 uint8_t nAction;          // Number of actions
 uint8_t nActionFocus;   // Action with the current focus
 t_action action;
+t_action aAction[127];    // 127 x 2-byte actions + 2-byte header fills EEPROM
 
 #define FOCUS_ON_PAGE  0
 #define FOCUS_ON_USAGE 1

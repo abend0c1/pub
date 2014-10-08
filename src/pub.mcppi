@@ -25,11 +25,12 @@ Count=0
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=4
+Count=5
 File0=pub.c
 File1=pub.h
 File2=USBdsc.c
 File3=USBdsc.h
+File4=pub.lst
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -61,4 +62,5 @@ File3=EEPROM
 [EXPANDED NODES]
 Node1=Sources
 Node2=Header Files
-Count=2
+Node3=Output Files
+Count=3
