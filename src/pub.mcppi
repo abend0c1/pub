@@ -25,12 +25,11 @@ Count=0
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=5
+Count=4
 File0=pub.c
 File1=pub.h
-File2=USBdsc.c
-File3=USBdsc.h
-File4=pub.lst
+File2=pub.lst
+File3=USBdsc.c
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]

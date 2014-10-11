@@ -37,38 +37,40 @@
 
 
 
-typedef union
-{
-  uint8_t byte;
-  struct
-  {
-    LeftShift:1;      // .......1
-    LeftControl:1;    // ......1.
-    LeftAlt:1;        // .....1..
-    LeftGUI:1;        // ....1...
-    RightShift:1;     // ...1....
-    RightControl:1;   // ..1.....
-    RightAlt:1;       // .1......
-    RightGUI:1;       // 1.......
-  } bits;
-} t_keyModifiers;
+
+
 
 typedef struct
-{ // Keyboard:        // 0000mmmmuuuuuuuu
-  uint8_t usage;      //         uuuuuuuu
+{
   union
   {
-    uint8_t value:4;  //     mmmm
+    uint8_t byte;
     struct
     {
-      LeftShift:1;    //     ...1
-      LeftControl:1;  //     ..1.
-      LeftAlt:1;      //     .1..
-      LeftGUI:1;      //     1...
+      LeftShift:1;      // .......1
+      LeftControl:1;    // ......1.
+      LeftAlt:1;        // .....1..
+      LeftGUI:1;        // ....1...
+      RightShift:1;     // ...1....
+      RightControl:1;   // ..1.....
+      RightAlt:1;       // .1......
+      RightGUI:1;       // 1.......
     } bits;
-  } mod;
-  uint8_t page:4;     // 0000
+  };
+} t_keyModifiers;
+
+
+typedef struct
+{ // Keyboard:      // 0000mmmmuuuuuuuu
+  uint8_t usage;    //         uuuuuuuu
+  uint8_t mod:4;    //     mmmm
+#define MODIFIER_LEFTSHIFT   0b0001
+#define MODIFIER_LEFTCTL     0b0010
+#define MODIFIER_LEFTALT     0b0100
+#define MODIFIER_LEFTGUI     0b1000
+  uint8_t page:4;   // 0000
 } t_keyboardAction;
+
 
 typedef struct
 { // Consumer Device: // 0001uuuuuuuuuuuu
@@ -165,9 +167,9 @@ union
 #define PAGE_SYSTEM_CONTROL        0x01
 #define PAGE_CONSUMER_DEVICE       0x02
 #define PAGE_DELETE                0x0B
-#define PAGE_CANCEL                0x0C
+#define PAGE_RELOAD                0x0C
 #define PAGE_REDISPLAY             0x0D
-#define PAGE_EXIT                  0x0E
+#define PAGE_SAVE                  0x0E
 #define PAGE_LOCAL_FUNCTION        0x0F
 
 #define LOCAL_FUNCTION_WAIT_MS     0XE

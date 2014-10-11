@@ -19,7 +19,7 @@
 
   Author:
   Andrew J. Armstrong <androidarmstrong@gmail.com>
-  
+
 */
 
 /*
@@ -27,8 +27,8 @@
 
 NAME     - PUB! Programmable USB Button
 
-FUNCTION - This is a programmable button on which you can record a sequence of 
-           keystrokes (and other USB functions) and then play that sequence back 
+FUNCTION - This is a programmable button on which you can record a sequence of
+           keystrokes (and other USB functions) and then play that sequence back
            when you press it.
 
 FEATURES - 1. Single rotary encoder knob (with push switch) is the only input.
@@ -108,8 +108,8 @@ OPERATION - The user interacts with the system via a digital encoder knob (with
             sequences.
 
             In RUN mode (the default mode when the device is plugged into a USB
-            port) the user simply presses the rotary knob to cause the previously 
-            programmed sequence of keystrokes to be sent to the host over the 
+            port) the user simply presses the rotary knob to cause the previously
+            programmed sequence of keystrokes to be sent to the host over the
             connecting USB cable.
 
             If the user presses the knob down for more than about 3 seconds,
@@ -272,7 +272,7 @@ const char * getUsageDesc (t_action * pAction) // Note: Literals returned as con
   switch (pAction->key.page)
   {
     case PAGE_KEYBOARD:
-      if (pAction->key.mod.bits.LeftShift)
+      if (pAction->key.mod & MODIFIER_LEFTSHIFT)
       {
         const char * pKeyDescWithShift = getKeyDescWithShift(pAction->key.usage);
         if (*pKeyDescWithShift)
@@ -320,7 +320,7 @@ void toPrintableHex(uint8_t c, char * p)
 }
 
 
-void sendUSBSystemControlCommand()
+void playSystemControlCommand()
 {
   if (!bUSBReady) return;
   usbToHost[0] = REPORT_ID_SYSTEM_CONTROL;  // Report Id = System Control
@@ -330,7 +330,7 @@ void sendUSBSystemControlCommand()
   while(!HID_Write(&usbToHost, 2));         // Copy to USB buffer and try to send
 }
 
-void sendUSBConsumerDeviceCommand()
+void playConsumerDeviceCommand()
 {
   if (!bUSBReady) return;
   usbToHost[0] = REPORT_ID_CONSUMER_DEVICE; // Report Id = Consumer Device
@@ -342,7 +342,7 @@ void sendUSBConsumerDeviceCommand()
   while(!HID_Write(&usbToHost, 3));         // Copy to USB buffer and try to send
 }
 
-void sendUSBKeystroke()
+void playKeystroke()
 {
   if (!bUSBReady) return;
   usbToHost[0] = REPORT_ID_KEYBOARD;        // Report Id = Keyboard
@@ -385,7 +385,7 @@ void say(uint8_t * p)
     {
       c = *p;
     }
-    sendUSBKeystroke();
+    playKeystroke();
     p++;
   }
 }
@@ -397,10 +397,10 @@ void sayConst(const uint8_t * p)
 
 void sayModifiers(t_keyboardAction * pAction)
 {
-  if (pAction->mod.bits.LeftGUI)     sayConst("GUI+");
-  if (pAction->mod.bits.LeftControl) sayConst("CTL+");
-  if (pAction->mod.bits.LeftAlt)     sayConst("ALT+");
-  if (pAction->mod.bits.LeftShift)   sayConst("SHIFT+");
+  if (pAction->mod & MODIFIER_LEFTGUI)     sayConst("GUI+");
+  if (pAction->mod & MODIFIER_LEFTCTL)     sayConst("CTL+");
+  if (pAction->mod & MODIFIER_LEFTALT)     sayConst("ALT+");
+  if (pAction->mod & MODIFIER_LEFTSHIFT)   sayConst("SHIFT+");
 }
 
 void sayHex(uint8_t c)
@@ -495,8 +495,8 @@ void saveInEEPROM()
   uint8_t addr;
   uint8_t  i;
 
-  EEPROM_Write(0, 0);       // Save something in the first byte
-  EEPROM_Write(1, nAction); // Save number of actions
+  EEPROM_Write(0, nActionFocus);   // Save currently focussed action in byte 0
+  EEPROM_Write(1, nAction);        // Save number of actions
   p = &aAction[0];
   addr = 2;
   for (i = 0; i < nAction; i++, p++)
@@ -513,9 +513,12 @@ void loadFromEEPROM()
   uint8_t  i;
 
   // Read any actions present in the EEPROM
-  nAction = EEPROM_Read(1); // Read number of actions
-  if (nAction > ELEMENTS(aAction)) // If EEPROM empty, or number of actions invalid
-    nAction = 0;            // Assume content of EEPROM is NBG
+  nActionFocus = EEPROM_Read(0);          // Read currently focussed action
+  if (nActionFocus > ELEMENTS(aAction))   // If EEPROM empty, or number of actions invalid
+    nActionFocus = 0;                     // Assume content of EEPROM is NBG
+  nAction = EEPROM_Read(1);               // Read number of actions
+  if (nAction > ELEMENTS(aAction))        // If EEPROM empty, or number of actions invalid
+    nAction = 0;                          // Assume content of EEPROM is NBG
 
   p = &aAction[0];          // Point to the first element of the actions array
   for (addr = 2, i = 0; i < nAction; i++)
@@ -529,6 +532,7 @@ void loadFromEEPROM()
   {
     p->action = 0;
   }
+
 }
 
 
@@ -616,10 +620,10 @@ void Prolog()
   LED = OFF;
 
   loadFromEEPROM();       // Load any existing script from the EEPROM
-  
+
   action.key.page = PAGE_KEYBOARD;
   action.key.usage = USB_KEY_A;
-  action.key.mod.value = 0;
+  action.key.mod = 0;
   rotation = 0;  // Indicate rotary event handled
   nActionFocus = 0; // Entry with the current focus
 
@@ -699,12 +703,12 @@ const char * getPageDesc (uint8_t page)
   switch (action.key.page)
   {
     case PAGE_KEYBOARD:         return "Set Keystroke";
-    case PAGE_CONSUMER_DEVICE:  return "Set Consumer Device Command";
     case PAGE_SYSTEM_CONTROL:   return "Set System Control Command";
+    case PAGE_CONSUMER_DEVICE:  return "Set Consumer Device Command";
     case PAGE_DELETE:           return "Delete Action";
-    case PAGE_CANCEL:           return "Reload from EEPROM";
+    case PAGE_RELOAD:           return "Reload from EEPROM";
     case PAGE_REDISPLAY:        return "Redisplay";
-    case PAGE_EXIT:             return "Save to EEPROM";
+    case PAGE_SAVE:             return "Save to EEPROM";
     case PAGE_LOCAL_FUNCTION:   return "Set Local Function";
     default:                    return "";
   }
@@ -719,7 +723,7 @@ void sayPage()
   sayConst("   ");
   toPrintableHex(action.key.page, &xWork);
   say(&xWork[1]);
-  sayConst("xxx ");
+  sayConst("    ");
   sayConst(getPageDesc(action.key.page));
   switch (action.key.page)
   {
@@ -730,6 +734,7 @@ void sayPage()
       sayConst(" at ");
       sayHex(nActionFocus);
       break;
+    case PAGE_DELETE:
     default:
       break;
   }
@@ -743,7 +748,7 @@ void sayUsage(uint8_t nAction, t_action * pAction)
 
   sayHex(nAction);
   sayKey(NONE, SPACE);
-  sayHex(pAction->key.page<<4 | pAction->key.mod.value);
+  sayHex(pAction->key.page<<4 | pAction->key.mod);
   sayHex(pAction->key.usage);
   sayKey(NONE, SPACE);
   switch (pAction->key.page)
@@ -753,7 +758,7 @@ void sayUsage(uint8_t nAction, t_action * pAction)
       sayConst(getUsageDesc(pAction));
       break;
     case PAGE_LOCAL_FUNCTION:
-      switch (pAction->key.mod.value)
+      switch (pAction->key.mod)
       {
         case LOCAL_FUNCTION_WAIT_SEC:
           sayConst("Wait ");
@@ -778,7 +783,7 @@ void sayUsage(uint8_t nAction, t_action * pAction)
       }
       break;
     case PAGE_DELETE:
-      sayConst("Delete action ");
+      sayConst("Delete action");
       if (nAction)  // If we have actions to delete
       {
         if (pAction->key.usage >= nAction)
@@ -868,43 +873,6 @@ void setFocus(uint8_t newFocus)
   selectLine(SELECTION_LINE);
 }
 
-void changePage()
-{
-  while (ROTARY_BUTTON_PRESSED)
-  {
-    if (rotation) // If the rotary knob is being turned while pressed
-    {
-      TMR3ON_bit = 0;
-      if (rotation > 0) // Clockwise rotation
-      {
-        if (nActionFocus < nAction)
-          nActionFocus++;
-      }
-      else              // Anticlockwise rotation
-      {
-        if (nActionFocus > 0)
-          nActionFocus--;
-      }
-      sayPage();
-      rotation = 0;  // Indicate rotary event handled
-    }
-    else // The rotary knob is being pressed but not turned
-    {
-    }
-  }
-  if (action.key.page == PAGE_KEYBOARD)
-  {
-    action.key.mod.value = 0; // No CTL/ALT/SHIFT/GUI modifiers
-    action.key.usage = USB_KEY_A;  // Start at the key 'A'
-  }
-  else
-  {
-    action.cons.usage = 0;          // Reset usage to zero
-  }
-  setFocus(FOCUS_ON_USAGE);         // We are now adjusting the usage
-  sayUsage(nActionFocus, &action);  // Overwrite it with a usage from the new page
-}
-
 void deleteAction(uint8_t n)
 {
   // TODO: Ideally this should also adjust any GOTO actions etc
@@ -912,7 +880,7 @@ void deleteAction(uint8_t n)
 
   if (nAction) // If anything to delete
   {
-    if (n == nAction) // If it is the action on the end
+    if (n == (nAction-1)) // If it is the action on the end
     {
       nAction--; // Delete the last action (effectively)
       nActionFocus = nAction;
@@ -940,6 +908,46 @@ void deleteAction(uint8_t n)
   }
 }
 
+void changePage()
+{
+  while (ROTARY_BUTTON_PRESSED)
+  {
+    if (rotation) // If the rotary knob is being turned while pressed
+    {
+      TMR3ON_bit = 0;
+      if (rotation > 0) // Clockwise rotation
+      {
+        if (nActionFocus < nAction)
+          nActionFocus++;
+      }
+      else              // Anticlockwise rotation
+      {
+        if (nActionFocus > 0)
+          nActionFocus--;
+        else if (nActionFocus == 0 && nAction)
+          nActionFocus = nAction;
+      }
+      sayPage();
+      rotation = 0;  // Indicate rotary event handled
+    }
+    else // The rotary knob is being pressed but not turned
+    {
+    }
+  }
+  if (action.key.page == PAGE_KEYBOARD)
+  {
+    action.key.mod = 0;            // No CTL/ALT/SHIFT/GUI modifiers
+    action.key.usage = USB_KEY_A;  // Start at the key 'A'
+  }
+  else
+  {
+    action.cons.usage = 0;          // Reset usage to zero
+  }
+  setFocus(FOCUS_ON_USAGE);         // We are now adjusting the usage
+  sayUsage(nActionFocus, &action);  // Overwrite it with a usage from the new page
+}
+
+
 void changeUsage()
 {
   uint8_t bAppendAction;
@@ -958,7 +966,7 @@ void changeUsage()
       {
         case PAGE_KEYBOARD:         // Push+turn adjusts the key modifier (ALT, SHIFT etc)
         case PAGE_LOCAL_FUNCTION:   // Push+turn adjusts the local function (GOTO, EXIT, DELAY etc)
-          rotation > 0 ? action.key.mod.value++ : action.key.mod.value--;
+          rotation > 0 ? action.key.mod++ : action.key.mod--;
           break;
         case PAGE_CONSUMER_DEVICE:  // Push+turn adjusts the 12-bit usage directly
           rotation > 0 ? action.cons.usage++ : action.cons.usage--;
@@ -993,8 +1001,7 @@ void changeUsage()
 
           aAction[nActionFocus] = action;
           sayAction(nActionFocus);
-          nActionFocus++;
-          nAction = nActionFocus; // Set new high water mark
+          nAction++;        // Set new high water mark
         }
       }
       else  // We are updating an existing action
@@ -1002,8 +1009,8 @@ void changeUsage()
         aAction[nActionFocus] = action;
         selectLine(START_ACTIONS_LINE+nActionFocus);
         sayAction(nActionFocus);
-        nActionFocus++; // Assume we will want to update the following action
       }
+      nActionFocus++;   // Automatically focus on the following action
     }
     selectLine(SELECTION_LINE);
     sayUsage(nActionFocus, &action);
@@ -1014,7 +1021,7 @@ void changeUsage()
 void displayProgrammingMenu()
 {
   clearAll();
-  sayConst("PUB! " VERSION);
+  sayConst("PUB! Programmable USB Button v" VERSION);
   newLine();
   newLine();
   newLine();
@@ -1023,7 +1030,7 @@ void displayProgrammingMenu()
   sayActions();
   action.key.page = PAGE_KEYBOARD;
   action.key.usage = USB_KEY_A;
-  action.key.mod.value = 0;
+  action.key.mod = 0;
   sayPage();
   setFocus(FOCUS_ON_PAGE);
 }
@@ -1082,14 +1089,14 @@ void programMode()
           }
           else switch (action.key.page)
           {
-            case PAGE_EXIT:
+            case PAGE_SAVE:
               saveInEEPROM();
               clearAll();
               sayConst("Saved in EEPROM");      // Save actions in EEPROM
               sayKey(SHIFT, HOME);              // Highlight it
               bProgramMode = FALSE;
               break;
-            case PAGE_CANCEL:
+            case PAGE_RELOAD:
               loadFromEEPROM();
               clearAll();
               sayConst("Reloaded from EEPROM");  // Re-instate actions from EEPROM
@@ -1141,21 +1148,21 @@ void play()
     switch (pAction->key.page)
     {
       case PAGE_KEYBOARD:
-        usbData.s.xx.byte = pAction->key.mod.value;
+        usbData.s.xx.byte = pAction->key.mod;
         usbData.s.yy = pAction->key.usage;
-        sendUSBKeystroke();
+        playKeystroke();
         break;
       case PAGE_SYSTEM_CONTROL:
         usbData.s.yy = pAction->sys.usage;
-        sendUSBSystemControlCommand();
+        playSystemControlCommand();
         break;
       case PAGE_CONSUMER_DEVICE:
         usbData.s.xx.byte = pAction->cons.usage >> 8;
         usbData.s.yy = pAction->cons.usage;
-        sendUSBConsumerDeviceCommand();
+        playConsumerDeviceCommand();
         break;
       case PAGE_LOCAL_FUNCTION:
-        switch (pAction->key.mod.value)
+        switch (pAction->key.mod)
         {
           case LOCAL_FUNCTION_WAIT_SEC:
             nCount = pAction->key.usage;

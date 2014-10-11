@@ -289,12 +289,12 @@ const struct
 {
   char bLength;
   char bDscType;
-  unsigned int string[9]; // Max number of (2-byte) "characters"
+  unsigned int string[4]; // Max number of (2-byte) "characters"
 } sManufacturer =
   {
-    20,           //sizeof this descriptor string
+    10,           //sizeof this descriptor string
     0x03,
-    {'P','a','s', 's', 'i', 'f', 'i', 'e', 'r'}
+    {'P','U','B', '!'}
   };
 
 //Product string descriptor
@@ -302,12 +302,12 @@ const struct tagProduct
 {
   char bLength;
   char bDscType;
-  unsigned int string[19]; // Max number of (2-byte) "characters"
+  unsigned int string[50]; // Max number of (2-byte) "characters"
 } sProduct =
   {
-    40,           //sizeof this descriptor string (including length and type fields)
+    48,           //sizeof this descriptor string (including length and type fields)
     0x03,
-    {'O','n','e',' ','B','u','t','t','o','n',' ','K','e','y','b','o','a','r','d'}
+    {'P','r','o','g','r','a','m','m','a','b','l','e',' ','U','S','B',' ','B','u','t','t','o','n'}
   };
   
 
