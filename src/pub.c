@@ -607,6 +607,16 @@ void Prolog()
 //                   x       0  = TMR3ON: Timer3 is off
 // Timer3 tick rate = 48 MHz crystal/4/8 = 1.5 MHz (667 ns)
 
+  userInterrupt = 0;
+  LED = OFF;
+
+  loadFromEEPROM();       // Load any existing script from the EEPROM at power up
+
+  action.key.page = PAGE_KEYBOARD;
+  action.key.usage = USB_KEY_A;
+  action.key.mod = 0;
+  rotation = 0;  // Indicate rotary event handled
+
 //----------------------------------------------------------------------------
 // Let the interrupts begin
 //----------------------------------------------------------------------------
@@ -615,17 +625,6 @@ void Prolog()
   IOCIE_bit = 1;          // Enable PORTB/C Interrupt On Change interrupts
   PEIE_bit = 1;           // Enable peripheral interrupts
   GIE_bit = 1;            // Enable global interrupts
-
-  button = 0;
-  LED = OFF;
-
-  loadFromEEPROM();       // Load any existing script from the EEPROM
-
-  action.key.page = PAGE_KEYBOARD;
-  action.key.usage = USB_KEY_A;
-  action.key.mod = 0;
-  rotation = 0;  // Indicate rotary event handled
-  nActionFocus = 0; // Entry with the current focus
 
   enableUSB();            // Enable USB interface
 }
@@ -953,7 +952,7 @@ void changeUsage()
   uint8_t bAppendAction;
 
   bAppendAction = TRUE;
-  nTimerDelay = DELAY_IN_SECONDS(1);
+  nRemainingTimerTicks = INTERVAL_IN_SECONDS(1);
   TMR3ON_bit = 1;
   while (ROTARY_BUTTON_PRESSED)
   {
@@ -1060,17 +1059,17 @@ void programMode()
   }
   else if (ROTARY_BUTTON_PRESSED)
   {
-    button = 0;
+    userInterrupt = 0;
     LED = OFF;
     Delay_ms(5);  // Cheap debounce
     if (ROTARY_BUTTON_PRESSED) // If still pressed
     {
-      nTimerDelay = DELAY_IN_SECONDS(1);  // Long press timer
+      nRemainingTimerTicks = INTERVAL_IN_SECONDS(1);  // Long press timer
       bLongPress = FALSE;
       TMR3ON_bit = 1;
       while (ROTARY_BUTTON_PRESSED && !rotation && !bLongPress) // pressed but not rotated
       {
-        if (TMR3ON_bit && nTimerDelay == 0) // If it is a long press
+        if (TMR3ON_bit && nRemainingTimerTicks == 0) // If it is a long press
         {
           TMR3ON_bit = 0; // Stop the long press timer
           bLongPress = TRUE;
@@ -1141,9 +1140,9 @@ void play()
   uint8_t i;
   uint8_t nCount;
   t_action * pAction = &aAction;
-  button = 0;
+  userInterrupt = 0; // The user can interrupt playback by pressing the button
   LED = OFF;
-  for (i = 0; i < nAction && !button; i++, pAction++)
+  for (i = 0; i < nAction && !userInterrupt; i++, pAction++)
   {
     switch (pAction->key.page)
     {
@@ -1165,15 +1164,15 @@ void play()
         switch (pAction->key.mod)
         {
           case LOCAL_FUNCTION_WAIT_SEC:
-            nCount = pAction->key.usage;
-            while (!button && nCount--)
+            nCount = pAction->key.usage;  // Number of seconds to wait
+            while (!userInterrupt && nCount--)  // Long delays can be interrupted
             {
               Delay_ms(1000);
             }
             break;
           case LOCAL_FUNCTION_WAIT_MS:
-            nCount = pAction->key.usage;
-            while (!button & nCount--)
+            nCount = pAction->key.usage;  // Number of milliseconds to wait
+            while (nCount--)
             {
               Delay_ms(1);
             }
@@ -1195,24 +1194,20 @@ void play()
         break;
     }
   }
-  button = 0;
-  LED = OFF;
 }
 
 void runMode()
 {
   if (ROTARY_BUTTON_PRESSED)
   {
-    button = 0;
-    LED = OFF;
     Delay_ms(5);  // Cheap debounce
     if (ROTARY_BUTTON_PRESSED)
     {
-      nTimerDelay = DELAY_IN_SECONDS(1);
+      nRemainingTimerTicks = INTERVAL_IN_SECONDS(1);
       TMR3ON_bit = 1;
       while (ROTARY_BUTTON_PRESSED)
       {
-        if (nTimerDelay == 0) // If it is a long press
+        if (nRemainingTimerTicks == 0) // If it is a long press
         {
           bProgramMode = TRUE;
           TMR3ON_bit = 0;
@@ -1222,6 +1217,7 @@ void runMode()
       }
       TMR3ON_bit = 0;
       while (ROTARY_BUTTON_PRESSED); // Wait for rotary button to be released
+      Delay_ms(5);  // Cheap debounce
       if (!bProgramMode)
       {
         play();
@@ -1236,7 +1232,7 @@ void main()
   while (1)
   {
     bProgramMode ? programMode() : runMode();
-    button = 0;
+    userInterrupt = 0;
     LED = OFF;
   }
 }
@@ -1247,8 +1243,8 @@ void interrupt()               // High priority interrupt service routine
 
   if (IOCIF_bit)               // Interrupt On Change interrupt?
   {
-    button |= ROTARY_BUTTON_PRESSED;
-    LED = button;
+    userInterrupt |= ROTARY_BUTTON_PRESSED;
+    LED = userInterrupt;
     state = *(stateArray + ((state & STATE_MASK) << 2 | (ROTARY_B << 1 | ROTARY_A)));
     rotation |= state & EVENT_MASK; // Extract rotary event from encoder state
     IOCIF_bit = 0;             // Clear Interrupt On Change flag
@@ -1256,7 +1252,7 @@ void interrupt()               // High priority interrupt service routine
 
   if (PIR2.TMR3IF)             // Timer3 interrupt? (22.9 times/second)
   {
-    nTimerDelay--;             // Decrement delay count
+    nRemainingTimerTicks--;             // Decrement delay count
     PIR2.TMR3IF = 0;           // Clear the Timer3 interrupt flag
   }
 

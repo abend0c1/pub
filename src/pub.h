@@ -18,7 +18,7 @@
 #define ELEMENTS(array) (sizeof(array)/sizeof(array[0]))
 #define CLOCK_FREQUENCY       (__FOSC__ * 1000)
 #define TIMER3_PRESCALER      8
-#define DELAY_IN_SECONDS(n) (CLOCK_FREQUENCY / 4 / TIMER3_PRESCALER / 65536 * n)
+#define INTERVAL_IN_SECONDS(n) (CLOCK_FREQUENCY / 4 / TIMER3_PRESCALER / 65536 * n)
 
 #define INFO_LINE           2
 #define SELECTION_LINE      3
@@ -103,9 +103,9 @@ t_action aAction[127];    // 127 x 2-byte actions + 2-byte header fills EEPROM
 uint8_t focus = FOCUS_ON_PAGE;
 
 
-volatile bit button;
+volatile bit userInterrupt;
 volatile int8_t rotation;  // 0 = no rotary event, +n = clockwise, -n = anticlockwise
-volatile uint8_t nTimerDelay;
+volatile uint8_t nRemainingTimerTicks;
 
 
 /*
