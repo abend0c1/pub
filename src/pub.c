@@ -102,8 +102,8 @@ CONFIG    - The PIC18F25K50 configuration fuses should be set as follows (items
             CONFIG5H C0 11000000 =  Default
             CONFIG6L 0F 00001111 =  Default
 
-OPERATION - The user interacts with the system via a digital encoder knob (with
-            a built-in switch) and, when in PROGRAM mode, with a host-based text
+OPERATION - The user interacts with the system via a digital encoder knob with
+            a built-in switch and, when in PROGRAM mode, with a host-based text
             editor program than understands fairly standard editing control
             sequences.
 
@@ -116,7 +116,7 @@ OPERATION - The user interacts with the system via a digital encoder knob (with
             then the device enters PROGRAM mode. The user must already
             have started and given focus to the above-mentioned text editor
             host application because this will be the means of communication
-            with the user. If you don't do that then the device will inject
+            with the user. If that is not done then the device will inject
             unwanted keystrokes into the application that currently has the
             keyboard focus.
 
@@ -126,44 +126,47 @@ OPERATION - The user interacts with the system via a digital encoder knob (with
             - Press and hold the rotary encoder to enter PROGRAM mode.
               The following prompt will be keyed into the text editor:
 
-              PUB! v.m
-              0    Add Keystroke
-              0000
+              PUB! Programmable USB Button vn.nn
+              Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit
+                 0    Set Keystroke at 00
+                 
+              At Code Action
 
-            - Rotate the knob to choose between the available USB "usage pages"
+            - Rotate the knob to choose between the available menu functions
               which are currently:
-              Add Keystroke
-              Add Consumer Device function
-              Add System Control function
-              Exit and save list
-              Exit and discard list
-              Add Delay in Seconds
+              
+              Set Keystroke
+              Set System Control function
+              Set Consumer Device function
+              Set Local Function (WAIT, GOTO etc)
+              Save to EEPROM
+              Redisplay
+              Reload from EEPROM
+              Delete Action
 
-            - Press the knob to select the desired "page".
+            - Press the knob to select the desired function. For example,
+              Set Keystroke
 
-            - Rotate the knob until the desired "usage" withing the selected
-              "page" is displayed in the text editor program:
+            - Rotate the knob until the desired keystroke is displayted:
 
-              0040 a
+              00 0004 a
 
-            - In "Add keystroke" page, you can choose a combination of keystroke
+            - For "Set keystroke" you can choose a combination of keystroke
               modifiers (Ctl, Alt, Shift, or GUI) by pressing and holding the
               knob **while rotating it**:
 
-              0240 SHIFT+A
+              00 0104 SHIFT+A
 
             - Press the knob to append the displayed keystroke to the list of
               keystrokes (or functions) to be recorded.
+              
+            - Select and append more keystrokes as required.
 
-            - If you wait for about 3 seconds without rotating or pressing the
-              knob, then focus will return to the "page" selection step.
+            - Press and hold the knob to return to the main menu.
 
-            - Select the "Exit and save list" page (or quit by selecting the "Exit
-              and discard list" page). You are now back into the default "run"
-              mode. When you press the knob, the recorded list of keystrokes
-              will be replayed.
+            - Rotate the knob to choose the "Save to EEPROM" function.
 
-
+            - Now when you press the knob the saved keystrokes will be replayed.
 
 
 
@@ -607,7 +610,7 @@ void Prolog()
 //                   x       0  = TMR3ON: Timer3 is off
 // Timer3 tick rate = 48 MHz crystal/4/8 = 1.5 MHz (667 ns)
 
-  userInterrupt = 0;
+  bUserInterrupt = 0;
   LED = OFF;
 
   loadFromEEPROM();       // Load any existing script from the EEPROM at power up
@@ -733,6 +736,7 @@ void sayPage()
       sayConst(" at ");
       sayHex(nActionFocus);
       break;
+
     case PAGE_DELETE:
     default:
       break;
@@ -756,6 +760,7 @@ void sayUsage(uint8_t nAction, t_action * pAction)
       sayModifiers((t_keyboardAction *)pAction);
       sayConst(getUsageDesc(pAction));
       break;
+
     case PAGE_LOCAL_FUNCTION:
       switch (pAction->key.mod)
       {
@@ -781,6 +786,7 @@ void sayUsage(uint8_t nAction, t_action * pAction)
           break;
       }
       break;
+
     case PAGE_DELETE:
       sayConst("Delete action");
       if (nAction)  // If we have actions to delete
@@ -793,6 +799,7 @@ void sayUsage(uint8_t nAction, t_action * pAction)
         sayHex(pAction->key.usage);
       }
       break;
+
     default:
       sayConst(getUsageDesc(pAction));
       break;
@@ -967,9 +974,11 @@ void changeUsage()
         case PAGE_LOCAL_FUNCTION:   // Push+turn adjusts the local function (GOTO, EXIT, DELAY etc)
           rotation > 0 ? action.key.mod++ : action.key.mod--;
           break;
+
         case PAGE_CONSUMER_DEVICE:  // Push+turn adjusts the 12-bit usage directly
           rotation > 0 ? action.cons.usage++ : action.cons.usage--;
           break;
+
         default:                    // Push+turn adjusts the 8-bit usage directly
           rotation > 0 ? action.key.usage++  : action.key.usage--;
           break;
@@ -1059,7 +1068,7 @@ void programMode()
   }
   else if (ROTARY_BUTTON_PRESSED)
   {
-    userInterrupt = 0;
+    bUserInterrupt = 0;
     LED = OFF;
     Delay_ms(5);  // Cheap debounce
     if (ROTARY_BUTTON_PRESSED) // If still pressed
@@ -1095,6 +1104,7 @@ void programMode()
               sayKey(SHIFT, HOME);              // Highlight it
               bProgramMode = FALSE;
               break;
+
             case PAGE_RELOAD:
               loadFromEEPROM();
               clearAll();
@@ -1102,14 +1112,17 @@ void programMode()
               sayKey(SHIFT, HOME);              // Highlight it
               bProgramMode = FALSE;
               break;
+
             case PAGE_REDISPLAY:
               displayProgrammingMenu();
               break;
+
             default:
               changePage();
               break;
           }
           break;
+
         case FOCUS_ON_USAGE:
           if (bLongPress)
           {
@@ -1121,6 +1134,7 @@ void programMode()
             changeUsage();
           }
           break;
+
         default:
           break;
       }
@@ -1140,9 +1154,9 @@ void play()
   uint8_t i;
   uint8_t nCount;
   t_action * pAction = &aAction;
-  userInterrupt = 0; // The user can interrupt playback by pressing the button
+  bUserInterrupt = 0; // The user can interrupt playback by pressing the button
   LED = OFF;
-  for (i = 0; i < nAction && !userInterrupt; i++, pAction++)
+  for (i = 0; i < nAction && !bUserInterrupt; i++, pAction++)
   {
     switch (pAction->key.page)
     {
@@ -1165,7 +1179,7 @@ void play()
         {
           case LOCAL_FUNCTION_WAIT_SEC:
             nCount = pAction->key.usage;  // Number of seconds to wait
-            while (!userInterrupt && nCount--)  // Long delays can be interrupted
+            while (!bUserInterrupt && nCount--)  // Long delays can be interrupted
             {
               Delay_ms(1000);
             }
@@ -1216,7 +1230,7 @@ void runMode()
         }
       }
       TMR3ON_bit = 0;
-      while (ROTARY_BUTTON_PRESSED); // Wait for rotary button to be released
+      while (ROTARY_BUTTON_PRESSED);   // Wait for rotary button to be released
       Delay_ms(5);  // Cheap debounce
       if (!bProgramMode)
       {
@@ -1232,7 +1246,7 @@ void main()
   while (1)
   {
     bProgramMode ? programMode() : runMode();
-    userInterrupt = 0;
+    bUserInterrupt = 0;
     LED = OFF;
   }
 }
@@ -1243,8 +1257,8 @@ void interrupt()               // High priority interrupt service routine
 
   if (IOCIF_bit)               // Interrupt On Change interrupt?
   {
-    userInterrupt |= ROTARY_BUTTON_PRESSED;
-    LED = userInterrupt;
+    bUserInterrupt |= ROTARY_BUTTON_PRESSED;
+    LED = bUserInterrupt;
     state = *(stateArray + ((state & STATE_MASK) << 2 | (ROTARY_B << 1 | ROTARY_A)));
     rotation |= state & EVENT_MASK; // Extract rotary event from encoder state
     IOCIF_bit = 0;             // Clear Interrupt On Change flag

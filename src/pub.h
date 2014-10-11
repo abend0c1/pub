@@ -103,7 +103,7 @@ t_action aAction[127];    // 127 x 2-byte actions + 2-byte header fills EEPROM
 uint8_t focus = FOCUS_ON_PAGE;
 
 
-volatile bit userInterrupt;
+volatile bit bUserInterrupt;
 volatile int8_t rotation;  // 0 = no rotary event, +n = clockwise, -n = anticlockwise
 volatile uint8_t nRemainingTimerTicks;
 
