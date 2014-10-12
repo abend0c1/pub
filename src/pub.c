@@ -262,10 +262,10 @@ uint16_t getNextConsumer (t_consumerDeviceAction * pAction)
 uint16_t getPrevConsumer (t_consumerDeviceAction * pAction)
 {
   uint16_t i;
-  for (i = pAction->usage-1; i > 0 && *CONSUMER_DEVICE_DESC[i] == '\0'; i--);
-  if (i == 0)
+  for (i = pAction->usage-1; i > 0 && i < ELEMENTS(CONSUMER_DEVICE_DESC) && *CONSUMER_DEVICE_DESC[i] == '\0'; i--);
+  if (i == 0 || i >= ELEMENTS(CONSUMER_DEVICE_DESC))
   {
-    for (i = ELEMENTS(CONSUMER_DEVICE_DESC); i > pAction->usage && *CONSUMER_DEVICE_DESC[i] == '\0'; i--);
+    for (i = ELEMENTS(CONSUMER_DEVICE_DESC)-1; i > pAction->usage && *CONSUMER_DEVICE_DESC[i] == '\0'; i--);
   }
   return i;
 }
@@ -1139,6 +1139,7 @@ void programMode()
           break;
       }
       while (ROTARY_BUTTON_PRESSED);  // Wait until button is released
+      Delay_ms(5);  // Cheap debounce
     }
     rotation = 0;  // Ignore rotary while button pressed
   }
