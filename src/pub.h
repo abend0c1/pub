@@ -176,23 +176,15 @@ union
 #define LOCAL_FUNCTION_WAIT_SEC    0XF
 #define LOCAL_FUNCTION_GOTO        0X0
 
-// Copies a text string from ROM into a RAM buffer (saves RAM)
-char * _TEXT(const char * p)
-{
-  static char sText[70];
-  char * q;
-  for (q=&sText; *q++ = *p++; );
-  return &sText;
-}
 const char ASCII_to_USB[] =
-{ // Top bit on means capitalise with Left Shift, 0x00 means "no key pressed"
+{ // Top bit on means capitalise with Left Shift
   //         00    01    02    03    04    05    06    07    08    09    0A    0B    0C    0D    0E    0F
   //        NUL   SOH   STX   ETX   EOT   ENQ   ACK   BEL    BS    HT    LF    VT    FF    CR    SO    SI
-  /* 00 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x2B, 0x28, 0x00, 0x00, 0x4A, 0x00, 0x00,
+  /* 00 */ 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2A, 0x2B, 0x28, 0x2C, 0x2C, 0x4A, 0x2C, 0x2C,
   //        DLE   DC1   DC2   DC3   DC4   NAK    SYN  ETB   CAN    EM   SUB   ESC    FS    GS    RS    US
-  /* 10 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  /* 10 */ 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C, 0x2C,
   //                !     "     #     $     %     &     '     (     )     *     +     ,     -     .     /
-  /* 20 */ 0x2C, 0x9E, 0x00, 0xA0, 0xA1, 0xA2, 0xA4, 0x34, 0xA6, 0xA7, 0xA5, 0xAE, 0x36, 0x2D, 0x37, 0x38,
+  /* 20 */ 0x2C, 0x9E, 0x2C, 0xA0, 0xA1, 0xA2, 0xA4, 0x34, 0xA6, 0xA7, 0xA5, 0xAE, 0x36, 0x2D, 0x37, 0x38,
   //          0     1     2     3     4     5     6     7     8     9     :     ;     <     =     >     ?
   /* 30 */ 0x27, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0xB3, 0x33, 0xB6, 0x2E, 0xB7, 0xB8,
   //          @     A     B     C     D     E     F     G     H     I     J     K     L     M     N     O
@@ -207,26 +199,26 @@ const char ASCII_to_USB[] =
 
 const char * const UNSHIFTED_USB_DESC[] =
 {
-  /* 00 */ "No Op","","","","a","b","c","d","e","f","g","h","i","j","k","l",
-  /* 10 */ "m","n","o","p","q","r","s","t","u","v","w","x","y","z","1","2",
-  /* 20 */ "3","4","5","6","7","8","9","0","Enter","Esc","Backspace","Tab","Space","-","=","[",
-  /* 30 */ "]","\\","#",";","'","`",",",".","/","CapsLock","F1","F2","F3","F4","F5","F6",
-  /* 40 */ "F7","F8","F9","F10","F11","F12","PrtScr","ScrLock","Pause","Ins","Home","PageUp","Delete","End","PageDown","Right",
-  /* 50 */ "Left","Down","Up","NumLock","KP /","KP *","KP -","KP +", "KP Enter","KP 1", "KP 2", "KP 3", "KP 4", "KP 5", "KP 6", "KP 7",
-  /* 60 */ "KP 8", "KP 9", "KP 0", "KP .", "\\", "Appl", "Power", "KP =", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20",
-  /* 70 */ "F21", "F22", "F23", "F24", "Exec", "Help", "Menu", "Select", "Stop", "Again", "Undo", "Cut", "Copy", "Paste", "Find", "Mute",
-  /* 80 */ "Vol+", "Vol-", "LockCaps", "LockNum", "LockScroll", "KP ,", "KP =",
+  /* 00 */ "No Op", "",          "",         "",        "a",          "b",    "c",      "d",       "e",        "f",        "g",         "h",           "i",       "j",     "k",        "l",
+  /* 10 */ "m",     "n",         "o",        "p",       "q",          "r",    "s",      "t",       "u",        "v",        "w",         "x",           "y",       "z",     "1",        "2",
+  /* 20 */ "3",     "4",         "5",        "6",       "7",          "8",    "9",      "0",       "Enter",    "Esc",      "Backspace", "Tab",         "Space",   "-",     "=",        "[",
+  /* 30 */ "]",     "\\",        "#",        ";",       "'",          "`",    ",",      ".",       "/",        "CapsLock", "F1",        "F2",          "F3",      "F4",    "F5",       "F6",
+  /* 40 */ "F7",    "F8",        "F9",       "F10",     "F11",        "F12",  "PrtScr", "ScrLock", "Pause",    "Ins",      "Home",      "PageUp",      "Delete",  "End",   "PageDown", "Right",
+  /* 50 */ "Left",  "Down",      "Up",       "NumLock", "KP /",       "KP *", "KP -",   "KP +",    "KP Enter", "KP 1",     "KP 2",      "KP 3",        "KP 4",    "KP 5",  "KP 6",     "KP 7",
+  /* 60 */ "KP 8",  "KP 9",      "KP 0",     "KP .",    "\\",         "Appl", "Power",  "KP =",    "F13",      "F14",      "F15",       "F16",         "F17",     "F18",   "F19",      "F20",
+  /* 70 */ "F21",   "F22",       "F23",      "F24",     "Exec",       "Help", "Menu",   "Select",  "Stop",     "Again",    "Undo",      "Cut",         "Copy",    "Paste", "Find",     "Mute",
+  /* 80 */ "Vol+",  "Vol-",      "LockCaps", "LockNum", "LockScroll", "KP ,", "KP =",
 };
 
 const char * const SHIFTED_USB_DESC[] =
 {
-  /* 00 */ "","","","","A","B","C","D","E","F","G","H","I","J","K","L",
-  /* 10 */ "M","N","O","P","Q","R","S","T","U","V","W", "X","Y","Z","!","@",
-  /* 20 */ "#","$","%","^","&","*","(",")","","","","","","_","+","{",
-  /* 30 */ "}","|","~",":","\"","~","<",">","?","","","","","","","",
-  /* 40 */ "","","","","","","","","","","","","","","","",
-  /* 50 */ "","","","Clear","","","","","","KP End", "KP Down", "KP PageDown", "KP Left", "", "KP Right", "KP Home",
-  /* 60 */ "KP Up", "KP PageUp", "KP Ins", "KP Del", "|",
+  /* 00 */ "",      "",          "",         "",        "A",          "B",    "C",      "D",       "E",        "F",        "G",         "H",           "I",       "J",     "K",        "L",
+  /* 10 */ "M",     "N",         "O",        "P",       "Q",          "R",    "S",      "T",       "U",        "V",        "W",         "X",           "Y",       "Z",     "!",        "@",
+  /* 20 */ "#",     "$",         "%",        "^",       "&",          "*",    "(",      ")",       "",         "",         "",          "",            "",        "_",     "+",        "{",
+  /* 30 */ "}",     "|",         "~",        ":",       "\"",         "~",    "<",      ">",       "?",        "",         "",          "",            "",        "",      "",         "",
+  /* 40 */ "",      "",          "",         "",        "",           "",     "",       "",        "",         "",         "",          "",            "",        "",      "",         "",
+  /* 50 */ "",      "",          "",         "Clear",   "",           "",     "",       "",        "",         "KP End",   "KP Down",   "KP PageDown", "KP Left", "",      "KP Right", "KP Home",
+  /* 60 */ "KP Up", "KP PageUp", "KP Ins",   "KP Del",  "|",
 };
 
 const char * const SYSTEM_CONTROL_DESC[] =

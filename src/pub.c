@@ -28,10 +28,10 @@
 NAME     - PUB! Programmable USB Button
 
 FUNCTION - This is a programmable button on which you can record a sequence of
-           keystrokes (and other USB functions) and then play that sequence back
-           when you press it.
+           keystrokes (and/o other USB functions) and then play that sequence 
+           back when you press it.
 
-FEATURES - 1. Single rotary encoder knob (with push switch) is the only input.
+FEATURES - 1. A single rotary encoder knob (with push switch) is the only input.
            2. Can record and replay up to 127 keystrokes (or other "actions").
            3. Absolutely NO HOST DRIVERS required.
 
@@ -41,7 +41,7 @@ PIN USAGE -                      PIC18F25K50
              LED        <-- | RA0  2    27 RB6 | <-- PGC            |
                         <-- | RA1  3    26 RB5 | <-- Rotary B       | PORTB
                         <-- | RA2  4    25 RB4 | <-- Rotary A       | Weak
-                        <-- | RA3  5    24 RB3 | <-- Rotary  BUTTON | Pullups
+                        <-- | RA3  5    24 RB3 | <-- Rotary button  | Pullups
                         <-- | RA4  6    23 RB2 | <--                | Enabled
                         <-- | RA5  7    22 RB1 | <--                |
              Ground     --- | VSS  8    21 RB0 | <--                |
@@ -147,13 +147,13 @@ OPERATION - The user interacts with the system via a digital encoder knob with
             - Press the knob to select the desired function. For example,
               Set Keystroke
 
-            - Rotate the knob until the desired keystroke is displayted:
+            - Rotate the knob until the desired keystroke is displayed:
 
               00 0004 a
 
             - For "Set keystroke" you can choose a combination of keystroke
               modifiers (Ctl, Alt, Shift, or GUI) by pressing and holding the
-              knob **while rotating it**:
+              knob down while rotating it:
 
               00 0104 SHIFT+A
 
@@ -174,23 +174,6 @@ OPERATION - The user interacts with the system via a digital encoder knob with
 
 NOTES    - 1. The source code is written in MikroC Pro from mikroe.com
 
-           2. Ensure that total RAM usage does not exceed 1k (4 x 256 byte banks).
-              If this is not done, then the compiler may allocate variables to
-              banks 4-7 which are also used by the USB module causing unpredictable
-              results.
-
-           3. Variable prefix convention:
-              Prefix Short for       Width  Type
-              ------ --------------- ------ ----------------
-                b    boolean          1 bit flag
-                n    number           8 bit unsigned integer
-                w    word            16 bit unsigned integer
-                i    int             16 bit signed integer
-                l    long            32 bit signed integer
-               ul    unsigned long   32 bit unsigned integer
-                c    char             8 bit character
-                s    string           8 bit character array
-
 
 REFERENCE - USB Human Interface Device Usage Tables at:
             http://www.usb.org/developers/devclass_docs/Hut1_12v2.pdf
@@ -207,13 +190,13 @@ AUTHORS  - Init Name                 Email
            AJA  Andrew J. Armstrong  androidarmstrong@gmail.com
 
 CREDITS  - Rotary encoder logic based on code originally written by Ben Buxton.
-           Copyright 2011 Ben Buxton. Licenced under the GNU GPL Version 3.
            http://www.buxtronix.net/2011/10/rotary-encoders-done-properly.html
 
 
 HISTORY  - Date     Ver   By  Reason (most recent at the top please)
            -------- ----- --- -------------------------------------------------
-           20140817 1.00  AJA Initial version
+           20141012 0.90  AJA First published version
+           20140817 0.10  AJA Initial development
 
 -------------------------------------------------------------------------------
 */
@@ -222,6 +205,14 @@ HISTORY  - Date     Ver   By  Reason (most recent at the top please)
 #include "USBdsc.h"
 #include "pub.h"
 
+// Copies a text string from ROM into a RAM buffer (saves RAM)
+char * _TEXT(const char * p)
+{
+  static char sText[70];
+  char * q;
+  for (q=&sText; *q++ = *p++; );
+  return &sText;
+}
 
 const char * getKeyDescWithNoShift (uint8_t key) // Note: Literals returned as const are in ROM
 { // Keyboard key without SHIFT modifier key pressed
@@ -331,6 +322,11 @@ void playKeystroke()
   usbToHost[2] = 0;                         // Reserved for OEM
   usbToHost[3] = usbData.s.yy;              // Key pressed
   while(!HID_Write(&usbToHost, 4));         // Copy to USB buffer and try to send
+}
+
+void sayNoKeyPressed()
+{
+  usbToHost[0] = REPORT_ID_KEYBOARD;        // Report Id = Keyboard
   usbToHost[1] = 0;                         // No modifiers now
   usbToHost[3] = 0;                         // No key pressed now
   while(!HID_Write(&usbToHost, 4));         // Copy to USB buffer and try to send
@@ -339,36 +335,37 @@ void playKeystroke()
 void say(uint8_t * p)
 {
   uint8_t c;
+  uint8_t lastc = 0;
+  
   while (*p)
   {
     usbData.s.xx.byte = 0;
     if (*p < sizeof(ASCII_to_USB))
     {
       c = ASCII_to_USB[*p];
-      if (c)
-      {
-        if (c & 0b10000000) // If SHIFT key needed
-        {
-          usbData.s.xx.bits.LeftShift = 1;
-          usbData.s.yy = c & 0b01111111;
-        }
-        else
-        {
-          usbData.s.yy = c;
-        }
-      }
-      else
-      {
-        usbData.s.yy = 0;
-      }
     }
     else
     {
-      c = *p;
+      c = SPACE; // Replace invalid ASCII character with a space
+    }
+    if (c == lastc)
+    {
+      sayNoKeyPressed();  // We need to release the key between identical keystrokes
+    }
+    lastc = c;
+    if (c & 0b10000000) // If SHIFT key needed
+    {
+      usbData.s.xx.bits.LeftShift = 1;
+      usbData.s.yy = c & 0b01111111;
+    }
+    else
+    {
+      usbData.s.yy = c;
     }
     playKeystroke();
     p++;
   }
+  sayNoKeyPressed(); // Release key (otherwise host will do a "key repeat")
 }
 
 void sayConst(const uint8_t * p)
@@ -400,9 +397,7 @@ void sayKey(uint8_t modifiers, uint8_t key)
   usbToHost[2] = 0;                       // Reserved for OEM
   usbToHost[3] = key;                     // Key pressed
   while(!HID_Write(&usbToHost, 4));       // Copy to USB buffer and try to send
-  usbToHost[1] = 0;                       // No modifiers now
-  usbToHost[3] = 0;                       // No key pressed now
-  while(!HID_Write(&usbToHost, 4));       // Copy to USB buffer and try to send
+  sayNoKeyPressed();                      // Release key
 }
 
 void resetKeyboardState() // ...this doesn't really work (with Ubuntu anyway)
@@ -1243,6 +1238,7 @@ void play()
         switch (pAction->key.mod)
         {
           case LOCAL_FUNCTION_WAIT_SEC:
+            sayNoKeyPressed();  // Release key (otherwise host will do a "key repeat")
             nCount = pAction->key.usage;  // Number of seconds to wait
             while (!bUserInterrupt && nCount--)  // Long delays can be interrupted
             {
@@ -1273,6 +1269,7 @@ void play()
         break;
     }
   }
+  sayNoKeyPressed();
 }
 
 void runMode()
