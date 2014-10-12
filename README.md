@@ -89,7 +89,7 @@ How To Use
 
   - Press the knob to save "cat" to the EEPROM
 
-          Saved
+          Saved in EEPROM
 
   - The device is now in RUN mode. Press the knob to "play" the recorded sequence:
 
