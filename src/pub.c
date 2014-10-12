@@ -28,7 +28,7 @@
 NAME     - PUB! Programmable USB Button
 
 FUNCTION - This is a programmable button on which you can record a sequence of
-           keystrokes (and/o other USB functions) and then play that sequence 
+           keystrokes (and/or other USB functions) and then play that sequence
            back when you press it.
 
 FEATURES - 1. A single rotary encoder knob (with push switch) is the only input.
