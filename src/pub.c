@@ -248,28 +248,6 @@ const char * getKeyDescWithShift(uint8_t key) // Note: Literals returned as cons
 }
 
 
-uint16_t getNextConsumer (t_consumerDeviceAction * pAction)
-{
-  uint16_t i;
-  for (i = pAction->usage+1; i < ELEMENTS(CONSUMER_DEVICE_DESC) && *CONSUMER_DEVICE_DESC[i] == '\0'; i++);
-  if (i >= ELEMENTS(CONSUMER_DEVICE_DESC))
-  {
-    for (i = 0; i < pAction->usage && *CONSUMER_DEVICE_DESC[i] == '\0'; i++);
-  }
-  return i;
-}
-
-uint16_t getPrevConsumer (t_consumerDeviceAction * pAction)
-{
-  uint16_t i;
-  for (i = pAction->usage-1; i > 0 && i < ELEMENTS(CONSUMER_DEVICE_DESC) && *CONSUMER_DEVICE_DESC[i] == '\0'; i--);
-  if (i == 0 || i >= ELEMENTS(CONSUMER_DEVICE_DESC))
-  {
-    for (i = ELEMENTS(CONSUMER_DEVICE_DESC)-1; i > pAction->usage && *CONSUMER_DEVICE_DESC[i] == '\0'; i--);
-  }
-  return i;
-}
-
 const char * getUsageDesc (t_action * pAction) // Note: Literals returned as const are in ROM
 {
   switch (pAction->key.page)
@@ -749,11 +727,18 @@ void sayUsage(uint8_t nAction, t_action * pAction)
   char * p;
   char sWork[4]; // "nnn"
 
-  sayHex(nAction);
-  sayKey(NONE, SPACE);
-  sayHex(pAction->key.page<<4 | pAction->key.mod);
-  sayHex(pAction->key.usage);
-  sayKey(NONE, SPACE);
+  if (pAction->key.page == PAGE_DELETE)
+  {
+    sayConst("        ");
+  }
+  else //say "aa pxxx "  where aa = Number of actions, p = page, xxx = usage
+  {
+    sayHex(nAction);
+    sayKey(NONE, SPACE);
+    sayHex(pAction->key.page<<4 | pAction->key.mod);
+    sayHex(pAction->key.usage);
+    sayKey(NONE, SPACE);
+  }
   switch (pAction->key.page)
   {
     case PAGE_KEYBOARD:
@@ -842,19 +827,64 @@ void nextKnownPage(int8_t rotation)
   }
 }
 
+uint16_t getNextConsumer (t_consumerDeviceAction * pAction)
+{
+  uint16_t i;
+  for (i = pAction->usage+1; i < ELEMENTS(CONSUMER_DEVICE_DESC) && *CONSUMER_DEVICE_DESC[i] == '\0'; i++);
+  if (i >= ELEMENTS(CONSUMER_DEVICE_DESC))
+  {
+    for (i = 0; i < pAction->usage && *CONSUMER_DEVICE_DESC[i] == '\0'; i++);
+  }
+  return i;
+}
+
+uint16_t getPrevConsumer (t_consumerDeviceAction * pAction)
+{
+  uint16_t i;
+  for (i = pAction->usage-1; i > 0 && i < ELEMENTS(CONSUMER_DEVICE_DESC) && *CONSUMER_DEVICE_DESC[i] == '\0'; i--);
+  if (i == 0 || i >= ELEMENTS(CONSUMER_DEVICE_DESC))
+  {
+    for (i = ELEMENTS(CONSUMER_DEVICE_DESC)-1; i > pAction->usage && *CONSUMER_DEVICE_DESC[i] == '\0'; i--);
+  }
+  return i;
+}
+
+uint8_t getNextSys (t_systemControlAction * pAction)
+{
+  uint8_t i;
+  for (i = pAction->usage+1; i < ELEMENTS(SYSTEM_CONTROL_DESC) && *SYSTEM_CONTROL_DESC[i] == '\0'; i++);
+  if (i >= ELEMENTS(SYSTEM_CONTROL_DESC))
+  {
+    for (i = 0; i < pAction->usage && *SYSTEM_CONTROL_DESC[i] == '\0'; i++);
+  }
+  return i;
+}
+
+uint8_t getPrevSys (t_systemControlAction * pAction)
+{
+  uint8_t i;
+  for (i = pAction->usage-1; i > 0 && i < ELEMENTS(SYSTEM_CONTROL_DESC) && *SYSTEM_CONTROL_DESC[i] == '\0'; i--);
+  if (i == 0 || i >= ELEMENTS(SYSTEM_CONTROL_DESC))
+  {
+    for (i = ELEMENTS(SYSTEM_CONTROL_DESC)-1; i > pAction->usage && *SYSTEM_CONTROL_DESC[i] == '\0'; i--);
+  }
+  return i;
+}
+
 
 void nextKnownUsage(int8_t rotation)
 {
-  if (action.key.page == PAGE_CONSUMER_DEVICE)
+  switch (action.key.page)
   {
-    if (rotation > 0)
-      action.cons.usage = getNextConsumer(&action.cons);    // 12-bit consumer device usage
-    else
-      action.cons.usage = getPrevConsumer(&action.cons);    // 12-bit consumer device usage
-  }
-  else
-  {
-    rotation > 0 ? action.key.usage++ : action.key.usage--; // 8-bit keyboard usage
+    case PAGE_CONSUMER_DEVICE:
+      action.cons.usage = rotation > 0 ? getNextConsumer(&action.cons) : getPrevConsumer(&action.cons);
+      break;
+    case PAGE_SYSTEM_CONTROL:
+      action.sys.usage = rotation > 0 ? getNextSys(&action.sys) : getPrevSys(&action.sys);
+      break;
+    default:
+      rotation > 0 ? action.key.usage++ : action.key.usage--; // 8-bit keyboard usage
+      break;
   }
 }
 
@@ -874,7 +904,27 @@ void setFocus(uint8_t newFocus)
   }
   else
   {
-    sayConst("Action: Turn=Select, Press=OK, Press+Turn=Modify, Press+Hold=Return");
+    switch (action.key.page)
+    {
+      case PAGE_KEYBOARD:
+        sayConst("Key:    Turn=Select, Press+Turn=Modify"); // , Press=OK, Press+Hold=Return
+        break;
+      case PAGE_SYSTEM_CONTROL:
+        sayConst("System: Turn=Select"); // , Press=OK, Press+Hold=Return
+        break;
+      case PAGE_CONSUMER_DEVICE:
+        sayConst("Cons:   Turn=Select"); // , Press=OK, Press+Hold=Return
+        break;
+      case PAGE_LOCAL_FUNCTION:
+        sayConst("Local:  Turn=Modify, Press+Turn=Select"); // , Press=OK, Press+Hold=Return
+        break;
+      case PAGE_DELETE:
+        sayConst("Delete: Turn=Select"); // , Press=OK, Press+Hold=Return
+        break;
+      default:
+        break;
+    }
+    sayConst(", Press=OK, Press+Hold=Return");
   }
   selectLine(SELECTION_LINE);
 }
@@ -914,6 +964,28 @@ void deleteAction(uint8_t n)
   }
 }
 
+void selectFirstUsage()
+{
+  switch (action.key.page)
+  {
+    case PAGE_KEYBOARD:
+      action.key.mod = 0;            // No CTL/ALT/SHIFT/GUI modifiers
+      action.key.usage = USB_KEY_A;  // Start at the key 'A'
+      break;
+    case PAGE_CONSUMER_DEVICE:
+      action.cons.usage = 0x09D;     // Start at "Ch+"
+      break;
+    case PAGE_SYSTEM_CONTROL:
+      action.sys.usage = 0x01;       // Start at "Power Down"
+      break;
+    default:
+      action.cons.usage = 0;         // Start at zero
+      break;
+  }
+
+}
+
+
 void changePage()
 {
   while (ROTARY_BUTTON_PRESSED)
@@ -940,15 +1012,7 @@ void changePage()
     {
     }
   }
-  if (action.key.page == PAGE_KEYBOARD)
-  {
-    action.key.mod = 0;            // No CTL/ALT/SHIFT/GUI modifiers
-    action.key.usage = USB_KEY_A;  // Start at the key 'A'
-  }
-  else
-  {
-    action.cons.usage = 0;          // Reset usage to zero
-  }
+  selectFirstUsage();
   setFocus(FOCUS_ON_USAGE);         // We are now adjusting the usage
   sayUsage(nActionFocus, &action);  // Overwrite it with a usage from the new page
 }

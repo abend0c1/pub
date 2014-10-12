@@ -27,8 +27,8 @@
 #define STRING_INDEX_MANUFACTURER  1
 #define STRING_INDEX_PRODUCT       2
 
-const unsigned int USB_VENDOR_ID = 0x4150;   // 'PA'
-const unsigned int USB_PRODUCT_ID = 0x5353;  // 'SS'
+const unsigned int USB_VENDOR_ID = 0x4155;   // 'PU'
+const unsigned int USB_PRODUCT_ID = 0x4221;  // 'B!'
 const char USB_SELF_POWER = 0x80;            // 0x80 = Bus powered, 0xC0 = Self powered
 const char USB_MAX_POWER = 50;               // Bus power required in units of 2 mA
 const char USB_TRANSFER_TYPE = 0x03;         // 0x03 = Interrupt transfers
