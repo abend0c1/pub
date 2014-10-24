@@ -521,14 +521,15 @@ void Prolog()
   ANSELB = 0b00000000;    // Configure all PORTB bits as digital
   ANSELC = 0b00000000;    // Configure all PORTC bits as digital
 
-  //        76543210
-  TRISA = 0b10111110;     // 1=Input, 0=Output
-  TRISB = 0b11111111;
-  TRISC = 0b00000111;
-
   LATA = 0;
   LATB = 0;
   LATC = 0;
+
+  //        76543210
+  TRISA = 0b00000000;     // 1=Input, 0=Output
+  TRISB = 0b11111000;
+  TRISC = 0b00110000;
+
 
   NOT_RBPU_bit = 0;       // Enable PORTB weak pull-ups (PIC 18F25K50)
 
