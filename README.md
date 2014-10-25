@@ -20,6 +20,7 @@ Features
 Futures
 -------
 The possibilities are fairly broad including:
+- Using a Bluetooth module to detect proximity of the button owner's mobile phone so that the USB button is only enabled when its owner is near.
 - Support for a number of "registers" to record state. For example, R0 to R15.
 - Support for basic arithmetic. Add, subtract, etc.
 - Support for conditional logic. For example, Compare to value, Jump on zero, etc.
