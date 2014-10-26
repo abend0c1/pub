@@ -1,4 +1,4 @@
 #!/bin/bash
 export FN='pub'
 echo "creating $FN-$1.zip"
-zip ./$FN-$1.zip $FN.sch $FN.brd $FN.lbr $FN.gto $FN.gtl $FN.gpi $FN.gbs $FN.gbo $FN.gbl $FN.txt $FN.gts $FN.gko
+zip ./$FN-$1.zip $FN.TXT $FN.GML $FN.do $FN.GBP $FN.GTP $FN.GBS $FN.GTS $FN.GBO $FN.GTO $FN.GBL $FN.GTL
