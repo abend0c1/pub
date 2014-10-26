@@ -75,7 +75,7 @@
 <layer number="109" name="ref-old" color="11" fill="1" visible="no" active="yes"/>
 <layer number="110" name="fp0" color="7" fill="1" visible="no" active="yes"/>
 <layer number="111" name="LPC17xx" color="7" fill="1" visible="no" active="yes"/>
-<layer number="112" name="tSilk" color="7" fill="1" visible="no" active="yes"/>
+<layer number="112" name="tSilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="113" name="IDFDebug" color="4" fill="1" visible="no" active="yes"/>
 <layer number="116" name="Patch_BOT" color="9" fill="4" visible="no" active="yes"/>
 <layer number="121" name="_tsilk" color="15" fill="1" visible="no" active="yes"/>
@@ -158,6 +158,7 @@
 <rectangle x1="33.655" y1="13.97" x2="51.435" y2="21.59" layer="41"/>
 <rectangle x1="53.975" y1="28.575" x2="60.96" y2="34.925" layer="41"/>
 <rectangle x1="36.83" y1="5.08" x2="50.8" y2="13.97" layer="41"/>
+<text x="62.23" y="57.15" size="2.032" layer="112" align="bottom-right">PUB! Programmable USB Button 0.90</text>
 </plain>
 <libraries>
 <library name="rcl">

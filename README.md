@@ -9,7 +9,7 @@ PUB! is a Programmable USB Button on which you can program with a sequence of ke
 
 Features
 --------
-- One-button design (a rotary encoder with a builtin switch)
+- One-button design (a rotary encoder with a built in switch)
 - Programmed by using an ordinary text editor as a display (for example, gedit on Linux, or Notepad on Windows)
 - Supports a GOTO function, so you can program loops
 - Can send USB System Control codes (Power off, sleep, wake) to your PC
