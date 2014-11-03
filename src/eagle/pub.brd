@@ -22,10 +22,10 @@
 <layer number="22" name="bPlace" color="23" fill="1" visible="no" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="24" name="bOrigins" color="23" fill="1" visible="no" active="yes"/>
-<layer number="25" name="tNames" color="15" fill="1" visible="no" active="yes"/>
-<layer number="26" name="bNames" color="23" fill="1" visible="no" active="yes"/>
-<layer number="27" name="tValues" color="15" fill="1" visible="no" active="yes"/>
-<layer number="28" name="bValues" color="23" fill="1" visible="no" active="yes"/>
+<layer number="25" name="tNames" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="26" name="bNames" color="23" fill="1" visible="yes" active="yes"/>
+<layer number="27" name="tValues" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="28" name="bValues" color="23" fill="1" visible="yes" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
@@ -158,9 +158,9 @@
 <rectangle x1="33.655" y1="13.97" x2="51.435" y2="21.59" layer="41"/>
 <rectangle x1="53.975" y1="28.575" x2="60.96" y2="34.925" layer="41"/>
 <rectangle x1="36.83" y1="5.08" x2="50.8" y2="13.97" layer="41"/>
-<text x="1.27" y="58.42" size="2.032" layer="121">PUB! Programmable USB Button 0.90</text>
-<text x="1.27" y="55.88" size="2.032" layer="121">(C) 2014 androidarmstrong@gmail.com</text>
-<text x="1.27" y="53.34" size="2.032" layer="121">https://github.com/abend0c1/pub</text>
+<text x="1.27" y="58.42" size="2.032" layer="121" font="vector">PUB! Programmable USB Button 0.90</text>
+<text x="1.27" y="55.88" size="2.032" layer="121" font="vector">(C) 2014 androidarmstrong@gmail.com</text>
+<text x="1.27" y="53.34" size="2.032" layer="121" font="vector">https://github.com/abend0c1/pub</text>
 </plain>
 <libraries>
 <library name="rcl">
@@ -700,112 +700,112 @@ design rules under a new name.</description>
 </autorouter>
 <elements>
 <element name="D1" library="led" package="SML1206" value="ACTIVITY" x="6.35" y="6.35" smashed="yes">
-<attribute name="NAME" x="13.335" y="8.1534" size="1.27" layer="25" ratio="10"/>
+<attribute name="NAME" x="13.335" y="8.1534" size="1.27" layer="25" font="vector" ratio="10"/>
 </element>
 <element name="R1" library="rcl" package="M1206" value="470" x="31.75" y="3.81" smashed="yes" rot="R180">
-<attribute name="NAME" x="32.385" y="6.985" size="1.27" layer="25" ratio="10" rot="R180"/>
-<attribute name="VALUE" x="33.02" y="1.905" size="1.27" layer="27" rot="R180"/>
+<attribute name="NAME" x="32.385" y="6.985" size="1.27" layer="25" font="vector" ratio="10" rot="R180"/>
+<attribute name="VALUE" x="33.02" y="1.905" size="1.27" layer="27" font="vector" rot="R180"/>
 </element>
 <element name="C3" library="rcl" package="C0805" value="100nF" x="42.545" y="17.78" smashed="yes" rot="MR180">
-<attribute name="NAME" x="41.275" y="20.32" size="1.27" layer="26" ratio="10" rot="MR180"/>
-<attribute name="VALUE" x="38.735" y="16.51" size="1.27" layer="28" rot="MR180"/>
+<attribute name="NAME" x="41.275" y="20.32" size="1.27" layer="26" font="vector" ratio="10" rot="MR180"/>
+<attribute name="VALUE" x="38.735" y="16.51" size="1.27" layer="28" font="vector" rot="MR180"/>
 </element>
 <element name="C4" library="rcl" package="SMC_A" value="4.7uF" x="60.325" y="31.75" smashed="yes" rot="MR90">
-<attribute name="NAME" x="61.3" y="37.135" size="1.27" layer="26" rot="MR90"/>
-<attribute name="VALUE" x="59.595" y="35.865" size="1.27" layer="28" rot="MR90"/>
+<attribute name="NAME" x="61.3" y="37.135" size="1.27" layer="26" font="vector" rot="MR90"/>
+<attribute name="VALUE" x="59.595" y="35.865" size="1.27" layer="28" font="vector" rot="MR90"/>
 </element>
 <element name="C1" library="rcl" package="C0805" value="100nF" x="53.975" y="9.525" smashed="yes">
-<attribute name="NAME" x="56.515" y="10.795" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="56.515" y="8.89" size="1.27" layer="27"/>
+<attribute name="NAME" x="56.515" y="10.795" size="1.27" layer="25" font="vector" ratio="10"/>
+<attribute name="VALUE" x="56.515" y="8.89" size="1.27" layer="27" font="vector"/>
 </element>
 <element name="C2" library="rcl" package="C0805" value="100nF" x="53.975" y="6.35" smashed="yes">
-<attribute name="NAME" x="56.515" y="3.81" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="56.515" y="5.715" size="1.27" layer="27"/>
+<attribute name="NAME" x="56.515" y="3.81" size="1.27" layer="25" font="vector" ratio="10"/>
+<attribute name="VALUE" x="56.515" y="5.715" size="1.27" layer="27" font="vector"/>
 </element>
 <element name="IC1" library="pub" package="SO28W" value="PIC18F25K50" x="41.91" y="17.78" smashed="yes">
-<attribute name="NAME" x="32.766" y="16.891" size="1.27" layer="25" rot="R90"/>
-<attribute name="VALUE" x="54.737" y="12.446" size="1.27" layer="27" rot="R90"/>
+<attribute name="NAME" x="32.766" y="16.891" size="1.27" layer="25" font="vector" rot="R90"/>
+<attribute name="VALUE" x="54.737" y="12.446" size="1.27" layer="27" font="vector" rot="R90"/>
 </element>
 <element name="SW1" library="switch-alps" package="ALPS_EC12E_SW" value="EC12E_SW" x="25.4" y="31.75" smashed="yes" rot="R90">
 <attribute name="OC_NEWARK" value="74M1068" x="25.4" y="31.75" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MPN" value="EC12E2424407" x="25.4" y="31.75" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MF" value="" x="25.4" y="31.75" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="OC_FARNELL" value="1520813" x="25.4" y="31.75" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="26.63" y="20.71" size="1.27" layer="25" rot="R180"/>
-<attribute name="VALUE" x="20.63" y="21.7" size="1.27" layer="27"/>
+<attribute name="NAME" x="26.63" y="20.71" size="1.27" layer="25" font="vector" rot="R180"/>
+<attribute name="VALUE" x="20.63" y="21.7" size="1.27" layer="27" font="vector"/>
 </element>
 <element name="RA1" library="testpad" package="B1,27" value="TPB1,27" x="36.83" y="10.795" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="36.195" y="8.89" size="1" layer="37"/>
-<attribute name="NAME" x="37.084" y="3.81" size="1.27" layer="25" rot="R90"/>
+<attribute name="NAME" x="37.084" y="3.81" size="1.27" layer="25" font="vector" rot="R90"/>
 </element>
 <element name="RA2" library="testpad" package="B1,27" value="TPB1,27" x="38.1" y="9.525" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="37.465" y="7.62" size="1" layer="37"/>
-<attribute name="NAME" x="38.354" y="3.81" size="1.27" layer="25" rot="R90"/>
+<attribute name="NAME" x="38.354" y="3.81" size="1.27" layer="25" font="vector" rot="R90"/>
 </element>
 <element name="RA3" library="testpad" package="B1,27" value="TPB1,27" x="39.37" y="10.795" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="38.735" y="8.89" size="1" layer="37"/>
-<attribute name="NAME" x="39.624" y="3.81" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="39.624" y="3.81" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RA4" library="testpad" package="B1,27" value="TPB1,27" x="40.64" y="9.525" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="40.005" y="7.62" size="1" layer="37"/>
-<attribute name="NAME" x="40.894" y="3.81" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="40.894" y="3.81" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RA5" library="testpad" package="B1,27" value="TPB1,27" x="41.91" y="10.795" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="41.275" y="8.89" size="1" layer="37"/>
-<attribute name="NAME" x="42.164" y="3.81" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="42.164" y="3.81" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RA7" library="testpad" package="B1,27" value="TPB1,27" x="44.45" y="10.795" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="43.815" y="8.89" size="1" layer="37"/>
-<attribute name="NAME" x="44.704" y="3.81" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="44.704" y="3.81" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RA6" library="testpad" package="B1,27" value="TPB1,27" x="45.72" y="9.525" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="45.085" y="7.62" size="1" layer="37"/>
-<attribute name="NAME" x="45.974" y="3.81" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="45.974" y="3.81" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RC0" library="testpad" package="B1,27" value="TPB1,27" x="46.99" y="10.795" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="46.355" y="8.89" size="1" layer="37"/>
-<attribute name="NAME" x="47.244" y="3.81" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="47.244" y="3.81" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RC1" library="testpad" package="B1,27" value="TPB1,27" x="48.26" y="9.525" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="47.625" y="7.62" size="1" layer="37"/>
-<attribute name="NAME" x="48.514" y="3.81" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="48.514" y="3.81" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RC2" library="testpad" package="B1,27" value="TPB1,27" x="49.53" y="10.795" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="48.895" y="8.89" size="1" layer="37"/>
-<attribute name="NAME" x="49.784" y="3.81" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="49.784" y="3.81" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RC6" library="testpad" package="B1,27" value="TPB1,27" x="48.26" y="24.765" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="47.625" y="22.86" size="1" layer="37"/>
-<attribute name="NAME" x="48.514" y="28.575" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="48.514" y="28.575" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RC7" library="testpad" package="B1,27" value="TPB1,27" x="46.99" y="26.035" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="46.355" y="24.13" size="1" layer="37"/>
-<attribute name="NAME" x="47.244" y="28.575" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="47.244" y="28.575" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RB0" library="testpad" package="B1,27" value="TPB1,27" x="43.18" y="24.765" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="42.545" y="22.86" size="1" layer="37"/>
-<attribute name="NAME" x="43.434" y="28.575" size="1.27" layer="25" ratio="10" rot="R90"/>
-<attribute name="VALUE" x="42.545" y="24.003" size="0.0254" layer="27"/>
+<attribute name="NAME" x="43.434" y="28.575" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
+<attribute name="VALUE" x="42.545" y="24.003" size="0.0254" layer="27" font="vector"/>
 </element>
 <element name="RB1" library="testpad" package="B1,27" value="TPB1,27" x="41.91" y="26.035" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="41.275" y="24.13" size="1" layer="37"/>
-<attribute name="NAME" x="42.164" y="28.575" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="42.164" y="28.575" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="RB2" library="testpad" package="B1,27" value="TPB1,27" x="40.64" y="24.765" smashed="yes">
 <attribute name="TP_SIGNAL_NAME" value="" x="40.005" y="22.86" size="1" layer="37"/>
-<attribute name="NAME" x="40.894" y="28.575" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="NAME" x="40.894" y="28.575" size="1.27" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="JP3" library="pub" package="USB-MINIB" value="USB-MINIB-5PIN" x="62.23" y="31.75" rot="R180">
 <attribute name="RSCOMPONENTS" value="6702654" x="62.23" y="31.75" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="U$1" library="pub" package="LIGHTGUIDE" value="" x="6.35" y="6.35"/>
 <element name="JP1" library="pub" package="1X05/90" value="MIKROPROG" x="2.54" y="19.05" smashed="yes" rot="R90">
-<attribute name="NAME" x="3.81" y="12.065" size="1.27" layer="25" ratio="10" rot="R180"/>
-<attribute name="VALUE" x="4.445" y="22.86" size="1.27" layer="27" rot="R270"/>
+<attribute name="NAME" x="3.81" y="12.065" size="1.27" layer="25" font="vector" ratio="10" rot="R180"/>
+<attribute name="VALUE" x="4.445" y="22.86" size="1.27" layer="27" font="vector" rot="R270"/>
 </element>
 <element name="JP2" library="pub" package="1X06/90" value="PICKKIT" x="2.54" y="45.72" smashed="yes" rot="R90">
-<attribute name="NAME" x="3.81" y="37.465" size="1.27" layer="25" ratio="10" rot="R180"/>
-<attribute name="VALUE" x="4.445" y="48.26" size="1.27" layer="27" rot="R270"/>
+<attribute name="NAME" x="3.81" y="37.465" size="1.27" layer="25" font="vector" ratio="10" rot="R180"/>
+<attribute name="VALUE" x="4.445" y="48.26" size="1.27" layer="27" font="vector" rot="R270"/>
 </element>
 </elements>
 <signals>
@@ -939,18 +939,19 @@ design rules under a new name.</description>
 <signal name="N$1">
 <contactref element="IC1" pad="26"/>
 <contactref element="SW1" pad="B"/>
-<wire x1="36.83" y1="22.56" x2="36.83" y2="34.29" width="0.4064" layer="1"/>
-<via x="36.83" y="34.29" extent="1-16" drill="0.4064"/>
-<wire x1="32.9" y1="34.25" x2="36.79" y2="34.25" width="0.4064" layer="16"/>
-<wire x1="36.79" y1="34.25" x2="36.83" y2="34.29" width="0.4064" layer="16" curve="90"/>
+<wire x1="36.83" y1="22.56" x2="36.83" y2="33.02" width="0.4064" layer="1"/>
+<via x="36.83" y="33.02" extent="1-16" drill="0.4064"/>
+<wire x1="32.9" y1="34.25" x2="35.6" y2="34.25" width="0.4064" layer="16"/>
+<wire x1="35.6" y1="34.25" x2="36.83" y2="33.02" width="0.4064" layer="16" curve="-90"/>
 </signal>
 <signal name="N$2">
 <contactref element="IC1" pad="25"/>
 <contactref element="SW1" pad="A"/>
-<wire x1="38.1" y1="29.21" x2="38.1" y2="22.56" width="0.4064" layer="1"/>
-<via x="38.1" y="29.21" extent="1-16" drill="0.4064"/>
-<wire x1="38.1" y1="29.21" x2="32.94" y2="29.21" width="0.4064" layer="16"/>
-<wire x1="32.94" y1="29.21" x2="32.9" y2="29.25" width="0.4064" layer="16" curve="-90"/>
+<wire x1="38.1" y1="27.94" x2="38.1" y2="22.56" width="0.4064" layer="1"/>
+<via x="38.1" y="27.94" extent="1-16" drill="0.4064"/>
+<wire x1="32.94" y1="29.21" x2="36.83" y2="29.21" width="0.4064" layer="16"/>
+<wire x1="36.83" y1="29.21" x2="38.1" y2="27.94" width="0.4064" layer="16" curve="-90"/>
+<wire x1="32.94" y1="29.21" x2="32.9" y2="29.25" width="0" layer="19" extent="16-16"/>
 </signal>
 <signal name="RA1">
 <contactref element="IC1" pad="24"/>
@@ -995,9 +996,9 @@ design rules under a new name.</description>
 <wire x1="60.325" y1="27.94" x2="60.325" y2="30.25" width="0.4064" layer="16"/>
 <wire x1="58.42" y1="29.21" x2="59.69" y2="27.94" width="0.4064" layer="16" curve="90"/>
 <wire x1="59.69" y1="27.94" x2="60.325" y2="27.94" width="0.4064" layer="16"/>
-<via x="10.16" y="49.53" extent="1-16" drill="0.4064"/>
-<wire x1="10.16" y1="49.53" x2="10.16" y2="24.13" width="0.4064" layer="1"/>
-<wire x1="10.16" y1="24.13" x2="10.16" y2="19.05" width="0.4064" layer="1"/>
+<via x="10.16" y="48.26" extent="1-16" drill="0.4064"/>
+<wire x1="10.16" y1="48.26" x2="10.16" y2="25.4" width="0.4064" layer="1"/>
+<wire x1="10.16" y1="25.4" x2="10.16" y2="19.05" width="0.4064" layer="1"/>
 <wire x1="10.16" y1="19.05" x2="11.43" y2="17.78" width="0.4064" layer="1" curve="90"/>
 <wire x1="11.43" y1="17.78" x2="39.37" y2="17.78" width="0.4064" layer="1"/>
 <wire x1="44.45" y1="22.56" x2="44.45" y2="18.415" width="0.4064" layer="1"/>
@@ -1005,9 +1006,11 @@ design rules under a new name.</description>
 <wire x1="43.815" y1="17.78" x2="39.37" y2="17.78" width="0.4064" layer="1"/>
 <contactref element="JP2" pad="2"/>
 <contactref element="JP1" pad="1"/>
-<wire x1="2.54" y1="49.53" x2="10.16" y2="49.53" width="0.4064" layer="16"/>
-<via x="10.16" y="24.13" extent="1-16" drill="0.4064"/>
-<wire x1="2.54" y1="24.13" x2="10.16" y2="24.13" width="0.4064" layer="16"/>
+<via x="10.16" y="25.4" extent="1-16" drill="0.4064"/>
+<wire x1="2.54" y1="49.53" x2="8.89" y2="49.53" width="0.4064" layer="16"/>
+<wire x1="8.89" y1="49.53" x2="10.16" y2="48.26" width="0.4064" layer="16" curve="-90"/>
+<wire x1="2.54" y1="24.13" x2="8.89" y2="24.13" width="0.4064" layer="16"/>
+<wire x1="8.89" y1="24.13" x2="10.16" y2="25.4" width="0.4064" layer="16" curve="90"/>
 </signal>
 <signal name="N$4">
 <contactref element="D1" pad="A"/>
@@ -1018,22 +1021,22 @@ design rules under a new name.</description>
 </signal>
 <signal name="N$8">
 <contactref element="IC1" pad="27"/>
-<via x="11.43" y="21.59" extent="1-16" drill="0.4064"/>
+<via x="11.43" y="22.86" extent="1-16" drill="0.4064"/>
 <wire x1="10.16" y1="41.91" x2="11.43" y2="40.64" width="0.4064" layer="16" curve="-90"/>
-<wire x1="11.43" y1="40.64" x2="11.43" y2="21.59" width="0.4064" layer="16"/>
+<wire x1="11.43" y1="40.64" x2="11.43" y2="22.86" width="0.4064" layer="16"/>
 <wire x1="35.56" y1="22.56" x2="35.56" y2="24.13" width="0.4064" layer="1"/>
 <wire x1="35.56" y1="24.13" x2="34.29" y2="25.4" width="0.4064" layer="1" curve="90"/>
 <wire x1="34.29" y1="25.4" x2="33.02" y2="24.13" width="0.4064" layer="1" curve="90"/>
 <wire x1="33.02" y1="24.13" x2="33.02" y2="20.955" width="0.4064" layer="1"/>
 <wire x1="33.02" y1="20.955" x2="32.385" y2="20.32" width="0.4064" layer="1" curve="-90"/>
-<wire x1="32.385" y1="20.32" x2="14.605" y2="20.32" width="0.4064" layer="1"/>
-<wire x1="14.605" y1="20.32" x2="13.97" y2="20.955" width="0.4064" layer="1" curve="-90"/>
-<wire x1="13.97" y1="20.955" x2="13.335" y2="21.59" width="0.4064" layer="1" curve="90"/>
-<wire x1="13.335" y1="21.59" x2="11.43" y2="21.59" width="0.4064" layer="1"/>
+<wire x1="32.385" y1="20.32" x2="12.7" y2="20.32" width="0.4064" layer="1"/>
 <contactref element="JP2" pad="5"/>
 <contactref element="JP1" pad="2"/>
-<wire x1="2.54" y1="21.59" x2="11.43" y2="21.59" width="0.4064" layer="16"/>
 <wire x1="2.54" y1="41.91" x2="10.16" y2="41.91" width="0.4064" layer="16"/>
+<wire x1="2.54" y1="21.59" x2="10.16" y2="21.59" width="0.4064" layer="16"/>
+<wire x1="10.16" y1="21.59" x2="11.43" y2="22.86" width="0.4064" layer="16" curve="90"/>
+<wire x1="12.7" y1="20.32" x2="11.43" y2="21.59" width="0.4064" layer="1" curve="-90"/>
+<wire x1="11.43" y1="21.59" x2="11.43" y2="22.86" width="0.4064" layer="1"/>
 </signal>
 <signal name="N$9">
 <contactref element="IC1" pad="28"/>
