@@ -37,14 +37,14 @@ FEATURES - 1. A single rotary encoder knob (with push switch) is the only input.
 
 PIN USAGE -                      PIC18F25K50
                             .------------------.
-             MCLR       --> | RE3  1    28 RB7 | <-- PGD            |
-             LED        <-- | RA0  2    27 RB6 | <-- PGC            |
-                        <-- | RA1  3    26 RB5 | <-- Rotary B       | PORTB
-                        <-- | RA2  4    25 RB4 | <-- Rotary A       | Weak
-                        <-- | RA3  5    24 RB3 | <-- Rotary button  | Pullups
-                        <-- | RA4  6    23 RB2 | <--                | Enabled
-                        <-- | RA5  7    22 RB1 | <--                |
-             Ground     --- | VSS  8    21 RB0 | <--                |
+             MCLR       --> | RE3  1    28 RB7 | <-- PGD                |
+             LED        <-- | RA0  2    27 RB6 | <-- PGC, Rotary button |
+                        <-- | RA1  3    26 RB5 | <-- Rotary B           | PORTB
+                        <-- | RA2  4    25 RB4 | <-- Rotary A           | Weak
+                        <-- | RA3  5    24 RB3 | <--                    | Pullups
+                        <-- | RA4  6    23 RB2 | <--                    | Enabled
+                        <-- | RA5  7    22 RB1 | <--                    |
+             Ground     --- | VSS  8    21 RB0 | <--                    |
              n/c        --- | RA7  9    20 VDD | --- +5V
                         <-- | RA6  10   19 VSS | --- Ground
                         <-- | RC0  11   18 RC7 | --> RX
@@ -195,6 +195,7 @@ CREDITS  - Rotary encoder logic based on code originally written by Ben Buxton.
 
 HISTORY  - Date     Ver   By  Reason (most recent at the top please)
            -------- ----- --- -------------------------------------------------
+           20141108 0.91  AJA Fixed PCB to match code. Rotary button on RB6
            20141012 0.90  AJA First published version
            20140817 0.10  AJA Initial development
 

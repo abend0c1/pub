@@ -27,7 +27,7 @@
 #define STRING_INDEX_MANUFACTURER  1
 #define STRING_INDEX_PRODUCT       2
 
-const unsigned int USB_VENDOR_ID = 0x4155;   // 'PU'
+const unsigned int USB_VENDOR_ID = 0x5055;   // 'PU'
 const unsigned int USB_PRODUCT_ID = 0x4221;  // 'B!'
 const char USB_SELF_POWER = 0x80;            // 0x80 = Bus powered, 0xC0 = Self powered
 const char USB_MAX_POWER = 50;               // Bus power required in units of 2 mA
