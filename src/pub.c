@@ -35,23 +35,23 @@ FEATURES - 1. A single rotary encoder knob (with push switch) is the only input.
            2. Can record and replay up to 127 keystrokes (or other "actions").
            3. Absolutely NO HOST DRIVERS required.
 
-PIN USAGE -                      PIC18F25K50
-                            .------------------.
-             MCLR       --> | RE3  1    28 RB7 | <-- PGD                |
-             LED        <-- | RA0  2    27 RB6 | <-- PGC, Rotary button |
-                        <-- | RA1  3    26 RB5 | <-- Rotary B           | PORTB
-                        <-- | RA2  4    25 RB4 | <-- Rotary A           | Weak
-                        <-- | RA3  5    24 RB3 | <--                    | Pullups
-                        <-- | RA4  6    23 RB2 | <--                    | Enabled
-                        <-- | RA5  7    22 RB1 | <--                    |
-             Ground     --- | VSS  8    21 RB0 | <--                    |
-             n/c        --- | RA7  9    20 VDD | --- +5V
-                        <-- | RA6  10   19 VSS | --- Ground
-                        <-- | RC0  11   18 RC7 | --> RX
-                        <-- | RC1  12   17 RC6 | --> TX
-                        <-- | RC2  13   16 RC5 | <-> USB D+
-             220nF      --- | VUSB 14   15 RC4 | <-> USB D-
-                            '------------------'
+PIN USAGE -                     PIC18F25K50
+                           .------------------.                       .--IOC
+            MCLR       --> | RE3  1    28 RB7 | <-- PGD               ||
+            LED        <-- | RA0  2    27 RB6 | <-- PGC, Rotary button||
+                       <-- | RA1  3    26 RB5 | <-- Rotary B          || PORTB
+                       <-- | RA2  4    25 RB4 | <-- Rotary A          || Weak
+                       <-- | RA3  5    24 RB3 | <--                    | Pullups
+                       <-- | RA4  6    23 RB2 | <--                    | Enabled
+                       <-- | RA5  7    22 RB1 | <--                    |
+            Ground     --- | VSS  8    21 RB0 | <--                    |
+            n/c        --- | RA7  9    20 VDD | --- +5V
+                       <-- | RA6  10   19 VSS | --- Ground
+                       <-- | RC0  11   18 RC7 | --> RX
+                       <-- | RC1  12   17 RC6 | --> TX
+                       <-- | RC2  13   16 RC5 | <-> USB D+
+            2 x 100 nF --- | VUSB 14   15 RC4 | <-> USB D-
+                           '------------------'
 
             Rotary Encoder with switch (e.g. ALPS EC11K0924401):
 
@@ -528,7 +528,7 @@ void Prolog()
 
   //        76543210
   TRISA = 0b00000000;     // 1=Input, 0=Output
-  TRISB = 0b11111000;
+  TRISB = 0b01111000;
   TRISC = 0b00110000;
 
 
@@ -1327,11 +1327,10 @@ void interrupt()               // High priority interrupt service routine
     rotation |= state & EVENT_MASK; // Extract rotary event from encoder state
     IOCIF_bit = 0;             // Clear Interrupt On Change flag
   }
-
-  if (PIR2.TMR3IF)             // Timer3 interrupt? (22.9 times/second)
-  {
-    nRemainingTimerTicks--;             // Decrement delay count
-    PIR2.TMR3IF = 0;           // Clear the Timer3 interrupt flag
+  if (TMR3IF_bit)              // Timer3 interrupt? (22.9 times/second)
+  {    
+    nRemainingTimerTicks--;    // Decrement delay count
+    TMR3IF_bit = 0;            // Clear the Timer3 interrupt flag
   }
 
 }
