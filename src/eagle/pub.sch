@@ -12901,15 +12901,15 @@ Source: http://ww1.microchip.com/downloads/en/devicedoc/39632c.pdf</description>
 <description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
 <wire x1="-3.81" y1="-0.635" x2="-3.81" y2="0.635" width="0.1524" layer="21"/>
 <wire x1="-6.35" y1="0.635" x2="-6.35" y2="-0.635" width="0.1524" layer="21"/>
-<wire x1="-5.08" y1="7.112" x2="-5.08" y2="0" width="0.762" layer="21"/>
+<wire x1="-5.08" y1="7.112" x2="-5.08" y2="0" width="0.762" layer="51"/>
 <wire x1="-1.27" y1="-0.635" x2="-1.27" y2="0.635" width="0.1524" layer="21"/>
-<wire x1="-2.54" y1="7.112" x2="-2.54" y2="0" width="0.762" layer="21"/>
+<wire x1="-2.54" y1="7.112" x2="-2.54" y2="0" width="0.762" layer="51"/>
 <wire x1="1.27" y1="-0.635" x2="1.27" y2="0.635" width="0.1524" layer="21"/>
-<wire x1="0" y1="7.112" x2="0" y2="0" width="0.762" layer="21"/>
+<wire x1="0" y1="7.112" x2="0" y2="0" width="0.762" layer="51"/>
 <wire x1="3.81" y1="-0.635" x2="3.81" y2="0.635" width="0.1524" layer="21"/>
-<wire x1="2.54" y1="7.112" x2="2.54" y2="0" width="0.762" layer="21"/>
+<wire x1="2.54" y1="7.112" x2="2.54" y2="0" width="0.762" layer="51"/>
 <wire x1="6.35" y1="-0.635" x2="6.35" y2="0.635" width="0.1524" layer="21"/>
-<wire x1="5.08" y1="7.112" x2="5.08" y2="0" width="0.762" layer="21"/>
+<wire x1="5.08" y1="7.112" x2="5.08" y2="0" width="0.762" layer="51"/>
 <pad name="5" x="-5.08" y="0" drill="1.016" shape="long" rot="R90"/>
 <pad name="4" x="-2.54" y="0" drill="1.016" shape="long" rot="R90"/>
 <pad name="3" x="0" y="0" drill="1.016" shape="long" rot="R90"/>
@@ -13010,12 +13010,12 @@ Source: http://ww1.microchip.com/downloads/en/devicedoc/39632c.pdf</description>
 </package>
 <package name="1X06/90">
 <description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
-<wire x1="-6.35" y1="7.112" x2="-6.35" y2="0" width="0.762" layer="21"/>
-<wire x1="-3.81" y1="7.112" x2="-3.81" y2="0" width="0.762" layer="21"/>
-<wire x1="-1.27" y1="7.112" x2="-1.27" y2="0" width="0.762" layer="21"/>
-<wire x1="1.27" y1="7.112" x2="1.27" y2="0" width="0.762" layer="21"/>
-<wire x1="3.81" y1="7.112" x2="3.81" y2="0" width="0.762" layer="21"/>
-<wire x1="6.35" y1="7.112" x2="6.35" y2="0" width="0.762" layer="21"/>
+<wire x1="-6.35" y1="7.112" x2="-6.35" y2="0" width="0.762" layer="51"/>
+<wire x1="-3.81" y1="7.112" x2="-3.81" y2="0" width="0.762" layer="51"/>
+<wire x1="-1.27" y1="7.112" x2="-1.27" y2="0" width="0.762" layer="51"/>
+<wire x1="1.27" y1="7.112" x2="1.27" y2="0" width="0.762" layer="51"/>
+<wire x1="3.81" y1="7.112" x2="3.81" y2="0" width="0.762" layer="51"/>
+<wire x1="6.35" y1="7.112" x2="6.35" y2="0" width="0.762" layer="51"/>
 <pad name="6" x="-6.35" y="0" drill="1.016" shape="long" rot="R90"/>
 <pad name="5" x="-3.81" y="0" drill="1.016" shape="long" rot="R90"/>
 <pad name="4" x="-1.27" y="0" drill="1.016" shape="long" rot="R90"/>
