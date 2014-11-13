@@ -315,21 +315,27 @@ void playConsumerDeviceCommand()
   while(!HID_Write(&usbToHost, 3));         // Copy to USB buffer and try to send
 }
 
-void playKeystroke()
-{
-  if (!bUSBReady) return;
-  usbToHost[0] = REPORT_ID_KEYBOARD;        // Report Id = Keyboard
-  usbToHost[1] = usbData.s.xx.byte;         // Ctrl/Alt/Shift modifiers
-  usbToHost[2] = 0;                         // Reserved for OEM
-  usbToHost[3] = usbData.s.yy;              // Key pressed
-  while(!HID_Write(&usbToHost, 4));         // Copy to USB buffer and try to send
-}
-
 void sayNoKeyPressed()
 {
   usbToHost[0] = REPORT_ID_KEYBOARD;        // Report Id = Keyboard
   usbToHost[1] = 0;                         // No modifiers now
   usbToHost[3] = 0;                         // No key pressed now
+  while(!HID_Write(&usbToHost, 4));         // Copy to USB buffer and try to send
+}
+
+void playKeystroke()
+{
+  if (!bUSBReady) return;
+  if (usbToHost[0] == REPORT_ID_KEYBOARD && // If new keystroke is the same as the last one
+      usbToHost[1] == usbData.s.xx.byte  &&
+      usbToHost[3] == usbData.s.yy)
+  {
+    sayNoKeyPressed();                      // Release the key before sending it again
+  }
+  usbToHost[0] = REPORT_ID_KEYBOARD;        // Report Id = Keyboard
+  usbToHost[1] = usbData.s.xx.byte;         // Ctrl/Alt/Shift modifiers
+  usbToHost[2] = 0;                         // Reserved for OEM
+  usbToHost[3] = usbData.s.yy;              // Key pressed
   while(!HID_Write(&usbToHost, 4));         // Copy to USB buffer and try to send
 }
 
