@@ -293,22 +293,22 @@ void toPrintableHex(uint8_t c, char * p)
 }
 
 
-void playSystemControlCommand()
+void playSystemControlCommand(t_action * pAction)
 {
   if (!bUSBReady) return;
   usbToHost[0] = REPORT_ID_SYSTEM_CONTROL;  // Report Id = System Control
-  usbToHost[1] = usbData.s.yy;              // Function requested
+  usbToHost[1] = pAction->sys.usage;        // Function requested
   while(!HID_Write(&usbToHost, 2));         // Copy to USB buffer and try to send
   usbToHost[1] = 0;                         // No function requested anymore
   while(!HID_Write(&usbToHost, 2));         // Copy to USB buffer and try to send
 }
 
-void playConsumerDeviceCommand()
+void playConsumerDeviceCommand(t_action * pAction)
 {
   if (!bUSBReady) return;
   usbToHost[0] = REPORT_ID_CONSUMER_DEVICE; // Report Id = Consumer Device
-  usbToHost[1] = usbData.s.yy;              // Function requested (low byte)
-  usbToHost[2] = usbData.s.xx.byte & 0x0F;  // Function requested (high byte)
+  usbToHost[1] = pAction->cons.usage;       // Function requested (low byte)
+  usbToHost[2] = pAction->cons.usage >> 8;  // Function requested (high byte)
   while(!HID_Write(&usbToHost, 3));         // Copy to USB buffer and try to send
   usbToHost[1] = 0;                         // Function requested low byte
   usbToHost[2] = 0;                         // Function requested high byte
@@ -323,56 +323,51 @@ void sayNoKeyPressed()
   while(!HID_Write(&usbToHost, 4));         // Copy to USB buffer and try to send
 }
 
-void playKeystroke()
+void playKeystroke(t_action * pAction)
 {
   if (!bUSBReady) return;
   if (usbToHost[0] == REPORT_ID_KEYBOARD && // If new keystroke is the same as the last one
-      usbToHost[1] == usbData.s.xx.byte  &&
-      usbToHost[3] == usbData.s.yy)
+      usbToHost[1] == pAction->key.mod   &&
+      usbToHost[3] == pAction->key.usage)
   {
     sayNoKeyPressed();                      // Release the key before sending it again
   }
   usbToHost[0] = REPORT_ID_KEYBOARD;        // Report Id = Keyboard
-  usbToHost[1] = usbData.s.xx.byte;         // Ctrl/Alt/Shift modifiers
+  usbToHost[1] = pAction->key.mod;          // Ctrl/Alt/Shift modifiers
   usbToHost[2] = 0;                         // Reserved for OEM
-  usbToHost[3] = usbData.s.yy;              // Key pressed
+  usbToHost[3] = pAction->key.usage;        // Key pressed
   while(!HID_Write(&usbToHost, 4));         // Copy to USB buffer and try to send
 }
 
 void say(uint8_t * p)
 {
   uint8_t c;
-  uint8_t lastc = 0;
+  t_action action;
   
   while (*p)
   {
-    usbData.s.xx.byte = 0;
     if (*p < sizeof(ASCII_to_USB))
     {
-      c = ASCII_to_USB[*p];
+      c = ASCII_to_USB[*p]; // Top bit on means capitalise with Left Shift
     }
     else
     {
       c = SPACE; // Replace invalid ASCII character with a space
     }
-    if (c == lastc)
-    {
-      sayNoKeyPressed();  // We need to release the key between identical keystrokes
-    }
-    lastc = c;
     if (c & 0b10000000) // If SHIFT key needed
     {
-      usbData.s.xx.bits.LeftShift = 1;
-      usbData.s.yy = c & 0b01111111;
+      action.key.mod = MODIFIER_LEFTSHIFT;
+      action.key.usage = c & 0b01111111;
     }
     else
     {
-      usbData.s.yy = c;
+      action.key.mod = 0;
+      action.key.usage = c;
     }
-    playKeystroke();
+    playKeystroke(&action);
     p++;
   }
-  sayNoKeyPressed(); // Release key (otherwise host will do a "key repeat")
+  sayNoKeyPressed(); // Release key otherwise the host will think the last key is still being pressed
 }
 
 void sayConst(const uint8_t * p)
@@ -1240,18 +1235,13 @@ void play()
     switch (pAction->key.page)
     {
       case PAGE_KEYBOARD:
-        usbData.s.xx.byte = pAction->key.mod;
-        usbData.s.yy = pAction->key.usage;
-        playKeystroke();
+        playKeystroke(pAction);
         break;
       case PAGE_SYSTEM_CONTROL:
-        usbData.s.yy = pAction->sys.usage;
-        playSystemControlCommand();
+        playSystemControlCommand(pAction);
         break;
       case PAGE_CONSUMER_DEVICE:
-        usbData.s.xx.byte = pAction->cons.usage >> 8;
-        usbData.s.yy = pAction->cons.usage;
-        playConsumerDeviceCommand();
+        playConsumerDeviceCommand(pAction);
         break;
       case PAGE_LOCAL_FUNCTION:
         switch (pAction->key.mod)
