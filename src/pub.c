@@ -445,10 +445,8 @@ void enableUSB()
     HID_Enable(&usbFromHost, &usbToHost);
     for (i=0; !bUSBReady && i < 50; i++) // Keep trying for up to 50 x 100 ms = 5 seconds
     {
-      Delay_ms(50);
-      LED = ON;
-      Delay_ms(50);
-      LED = OFF;
+      Delay_ms(100);
+      LED = ON;                          // LED will be turned off by the next timer interrupt
       bUSBReady = HID_Write(&usbToHost, 4) != 0; // Copy to USB buffer and try to send
     }
     if (!bUSBReady)
@@ -581,7 +579,19 @@ void Prolog()
   IOCB5_bit = 1;          // Enable IOC interrupts for rotary switch pin A
   IOCB4_bit = 1;          // Enable IOC interrupts for rotary switch pin B
 
-// Timer3 is used for human-scale delays
+// Timer0 is used for LED blinking (Timer0 is always enabled)
+  T0CON   = 0b10010010;
+//            x              1  = TMR0ON: Timer0 on (1 = on, 0 = off)
+//             x             0  = T08BIT: Timer0 8-bit mode (1 = 8-BIT, 0 = 16-bit)
+//              x            0  = T0CS:   Timer0 clock source (1 = T0CKI, 0 = FOSC/4)
+//               x           1  = T0SE:   Timer0 Source Edge select T0CKI (1 = H-to-L, 0 = L-to-H)
+//                x          0  = PSA:    Pre Scaler Assigned (1 = Not assigned, 0 = Assigned)
+//                 xxx       010= T0PS:   Timer0 Pre Scaler (010 = 1:8)
+// Timer0 tick rate = 48 MHz FOSC/4/8 = 1.5 MHz
+// Timer0 interrupt rate = 1.5 MHz / 65536 = 22.9 times per second (once every 43.7 ms)
+
+
+// Timer3 is used for human-scale delays (Timer3 is not always enabled)
   T3CON   = 0b00110010;
 //            xx             00 = TMR3CS: Timer3 clock source is instruction clock (Fosc/4)
 //              xx           11 = TMR3PS: Timer3 prescale value is 1:8
@@ -589,7 +599,8 @@ void Prolog()
 //                 x         0  = T3SYNC: Ignored because TMR3CS = 0x
 //                  x        1  = RD16:   Enables register read/write of Timer3 in one 16-bit operation
 //                   x       0  = TMR3ON: Timer3 is off
-// Timer3 tick rate = 48 MHz crystal/4/8 = 1.5 MHz (667 ns)
+// Timer3 tick rate = 48 MHz FOSC/4/8 = 1.5 MHz (667 ns)
+// Timer3 interrupt rate = 1.5 MHz / 65536 = 22.9 times per second
 
   bUserInterrupt = 0;
   LED = OFF;
@@ -605,7 +616,8 @@ void Prolog()
 // Let the interrupts begin
 //----------------------------------------------------------------------------
 
-  PIE2.TMR3IE = 1;        // Enable Timer3 interrupts
+  TMR0IE_bit = 1;         // Enable Timer0 interrupts (to turn off LED)
+  TMR3IE_bit = 1;         // Enable Timer3 interrupts (for long press delay)
   IOCIE_bit = 1;          // Enable PORTB/C Interrupt On Change interrupts
   PEIE_bit = 1;           // Enable peripheral interrupts
   GIE_bit = 1;            // Enable global interrupts
@@ -995,7 +1007,7 @@ void changePage()
   {
     if (rotation) // If the rotary knob is being turned while pressed
     {
-      TMR3ON_bit = 0;
+      TMR3ON_bit = 0;   // Disable long-press timer
       if (rotation > 0) // Clockwise rotation
       {
         if (nActionFocus < nAction)
@@ -1027,12 +1039,12 @@ void changeUsage()
 
   bAppendAction = TRUE;
   nRemainingTimerTicks = INTERVAL_IN_SECONDS(1);
-  TMR3ON_bit = 1;
+  TMR3ON_bit = 1;   // Enable long-press timer
   while (ROTARY_BUTTON_PRESSED)
   {
     if (rotation) // If the rotary knob is being turned while pressed
     {
-      TMR3ON_bit = 0;
+      TMR3ON_bit = 0;   // Disable long-press timer
       bAppendAction = FALSE;
       selectLine(SELECTION_LINE);
       switch (action.key.page)
@@ -1058,7 +1070,7 @@ void changeUsage()
     }
   }
   // Rotary button released...
-  TMR3ON_bit = 0;
+  TMR3ON_bit = 0;   // Disable long-press timer
   if (bAppendAction)
   {
     if (action.key.page == PAGE_DELETE) // If we are removing an action
@@ -1136,13 +1148,12 @@ void programMode()
   else if (ROTARY_BUTTON_PRESSED)
   {
     bUserInterrupt = 0;
-    LED = OFF;
     Delay_ms(5);  // Cheap debounce
     if (ROTARY_BUTTON_PRESSED) // If still pressed
     {
       nRemainingTimerTicks = INTERVAL_IN_SECONDS(1);  // Long press timer
       bLongPress = FALSE;
-      TMR3ON_bit = 1;
+      TMR3ON_bit = 1;   // Enable long-press timer
       while (ROTARY_BUTTON_PRESSED && !rotation && !bLongPress) // pressed but not rotated
       {
         if (TMR3ON_bit && nRemainingTimerTicks == 0) // If it is a long press
@@ -1223,9 +1234,9 @@ void play()
   uint8_t nCount;
   t_action * pAction = &aAction;
   bUserInterrupt = 0; // The user can interrupt playback by pressing the button
-  LED = OFF;
   for (i = 0; i < nAction && !bUserInterrupt; i++, pAction++)
   {
+    LED = ON;         // The LED will be turned off by the next timer interrupt
     switch (pAction->key.page)
     {
       case PAGE_KEYBOARD:
@@ -1288,18 +1299,18 @@ void runMode()
     if (ROTARY_BUTTON_PRESSED)
     {
       nRemainingTimerTicks = INTERVAL_IN_SECONDS(1);
-      TMR3ON_bit = 1;
+      TMR3ON_bit = 1; // Enable long-press timer
       while (ROTARY_BUTTON_PRESSED)
       {
         if (nRemainingTimerTicks == 0) // If it is a long press
         {
           bProgramMode = TRUE;
-          TMR3ON_bit = 0;
+          TMR3ON_bit = 0;   // Disable long-press timer
           displayProgrammingMenu();
           break;
         }
       }
-      TMR3ON_bit = 0;
+      TMR3ON_bit = 0;   // Disable long-press timer
       while (ROTARY_BUTTON_PRESSED);   // Wait for rotary button to be released
       Delay_ms(5);  // Cheap debounce
       if (!bProgramMode)
@@ -1317,7 +1328,6 @@ void main()
   {
     bProgramMode ? programMode() : runMode();
     bUserInterrupt = 0;
-    LED = OFF;
   }
 }
 
@@ -1328,10 +1338,14 @@ void interrupt()               // High priority interrupt service routine
   if (IOCIF_bit)               // Interrupt On Change interrupt?
   {
     bUserInterrupt |= ROTARY_BUTTON_PRESSED;
-    LED = bUserInterrupt;
     state = *(stateArray + ((state & STATE_MASK) << 2 | (ROTARY_B << 1 | ROTARY_A)));
     rotation |= state & EVENT_MASK; // Extract rotary event from encoder state
     IOCIF_bit = 0;             // Clear Interrupt On Change flag
+  }
+  if (TMR0IF_bit)              // Timer0 interrupt? (22.9 times/second)
+  {
+    LED = OFF;                 // Always turn the LED off after at most 44 ms
+    TMR0IF_bit = 0;            // Clear the Timer0 interrupt flag
   }
   if (TMR3IF_bit)              // Timer3 interrupt? (22.9 times/second)
   {    
