@@ -441,7 +441,7 @@ void enableUSB()
     for (i=0; !bUSBReady && i < 50; i++) // Keep trying for up to 50 x 100 ms = 5 seconds
     {
       Delay_ms(100);
-      LED = ON;                          // LED will be turned off by the next timer interrupt
+      ACTIVITY_LED = ON;                         // LED will be turned off by the next timer interrupt
       bUSBReady = HID_Write(&usbToHost, 4) != 0; // Copy to USB buffer and try to send
     }
     if (!bUSBReady)
@@ -598,7 +598,7 @@ void Prolog()
 // Timer3 interrupt rate = 1.5 MHz / 65536 = 22.9 times per second
 
   bUserInterrupt = 0;
-  LED = OFF;
+  ACTIVITY_LED = OFF;
 
   loadFromEEPROM();       // Load any existing script from the EEPROM at power up
 
@@ -1231,7 +1231,7 @@ void play()
   bUserInterrupt = 0; // The user can interrupt playback by pressing the button
   for (i = 0; i < nAction && !bUserInterrupt; i++, pAction++)
   {
-    LED = ON;         // The LED will be turned off by the next timer interrupt
+    ACTIVITY_LED = ON;         // The LED will be turned off by the next timer interrupt
     switch (pAction->key.page)
     {
       case PAGE_KEYBOARD:
@@ -1334,7 +1334,7 @@ void interrupt()               // High priority interrupt service routine
   }
   if (TMR0IF_bit)              // Timer0 interrupt? (22.9 times/second)
   {
-    LED = OFF;                 // Always turn the LED off after at most 44 ms
+    ACTIVITY_LED = OFF;        // Always turn the LED off after at most 44 ms
     TMR0IF_bit = 0;            // Clear the Timer0 interrupt flag
   }
   if (TMR3IF_bit)              // Timer3 interrupt? (22.9 times/second)

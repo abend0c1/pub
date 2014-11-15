@@ -135,7 +135,7 @@ sbit ROTARY_B                   at RB4_bit;
 sbit ROTARY_BUTTON              at RB6_bit;
 #define ROTARY_BUTTON_PRESSED   !ROTARY_BUTTON
 
-#define LED          LATA0_bit
+#define ACTIVITY_LED          LATA0_bit
 
 volatile uint8_t             cFlags;
 #define bUSBReady            cFlags.B0
