@@ -597,7 +597,7 @@ void Prolog()
 // Timer3 tick rate = 48 MHz FOSC/4/8 = 1.5 MHz (667 ns)
 // Timer3 interrupt rate = 1.5 MHz / 65536 = 22.9 times per second
 
-  bUserInterrupt = 0;
+  bUserInterrupt = FALSE;
   ACTIVITY_LED = OFF;
 
   loadFromEEPROM();       // Load any existing script from the EEPROM at power up
@@ -1142,7 +1142,7 @@ void programMode()
   }
   else if (ROTARY_BUTTON_PRESSED)
   {
-    bUserInterrupt = 0;
+    bUserInterrupt = FALSE;
     Delay_ms(5);  // Cheap debounce
     if (ROTARY_BUTTON_PRESSED) // If still pressed
     {
@@ -1228,7 +1228,7 @@ void play()
   uint8_t i;
   uint8_t nCount;
   t_action * pAction = &aAction;
-  bUserInterrupt = 0; // The user can interrupt playback by pressing the button
+  bUserInterrupt = FALSE; // The user can interrupt playback by pressing the button
   for (i = 0; i < nAction && !bUserInterrupt; i++, pAction++)
   {
     ACTIVITY_LED = ON;         // The LED will be turned off by the next timer interrupt
@@ -1279,6 +1279,12 @@ void play()
     }
   }
   sayNoKeyPressed();
+  if (bUserInterrupt)
+  {
+    Delay_ms(5); // Wait for button press bouncing to subside
+    while (ROTARY_BUTTON_PRESSED); // Wait for user to release button
+    Delay_ms(5); // Wait for button release bouncing to subside
+  }
 }
 
 void runMode()
@@ -1316,7 +1322,6 @@ void main()
   while (1)
   {
     bProgramMode ? programMode() : runMode();
-    bUserInterrupt = 0;
   }
 }
 
@@ -1328,7 +1333,7 @@ void interrupt()               // High priority interrupt service routine
   {
     if (ROTARY_BUTTON_PRESSED)
     {
-      bUserInterrupt = 1;
+      bUserInterrupt = TRUE;
     }
     state = *(stateArray + ((state & STATE_MASK) << 2 | (ROTARY_B << 1 | ROTARY_A)));
     rotation |= state & EVENT_MASK; // Extract rotary event from encoder state

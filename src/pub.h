@@ -141,6 +141,7 @@ volatile uint8_t             cFlags;
 #define bUSBReady            cFlags.B0
 #define bProgramMode         cFlags.B1
 #define bLongPress           cFlags.B2
+#define bUserInterrupt       cFlags.B3
 
 // USB buffers must be in USB RAM, hence the "absolute" specifier...
 uint8_t BANK4_RESERVED_FOR_USB[256] absolute 0x400; // Prevent compiler from allocating
