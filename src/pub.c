@@ -1301,7 +1301,6 @@ void runMode()
         }
       }
       TMR3ON_bit = 0;   // Disable long-press timer
-      while (ROTARY_BUTTON_PRESSED);   // Wait for rotary button to be released
       Delay_ms(5);  // Cheap debounce
       if (!bProgramMode)
       {
@@ -1327,7 +1326,10 @@ void interrupt()               // High priority interrupt service routine
 
   if (IOCIF_bit)               // Interrupt On Change interrupt?
   {
-    bUserInterrupt |= ROTARY_BUTTON_PRESSED;
+    if (ROTARY_BUTTON_PRESSED)
+    {
+      bUserInterrupt = 1;
+    }
     state = *(stateArray + ((state & STATE_MASK) << 2 | (ROTARY_B << 1 | ROTARY_A)));
     rotation |= state & EVENT_MASK; // Extract rotary event from encoder state
     IOCIF_bit = 0;             // Clear Interrupt On Change flag
