@@ -803,7 +803,7 @@ design rules under a new name.</description>
 <attribute name="NAME" x="3.81" y="10.795" size="1.27" layer="25" font="vector" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="4.445" y="21.59" size="1.27" layer="27" font="vector" rot="R270"/>
 </element>
-<element name="JP2" library="pub" package="1X06/90" value="PICKKIT" x="2.54" y="45.72" smashed="yes" rot="R90">
+<element name="JP2" library="pub" package="1X06/90" value="PICKIT" x="2.54" y="45.72" smashed="yes" rot="R90">
 <attribute name="NAME" x="3.81" y="37.465" size="1.27" layer="25" font="vector" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="4.445" y="48.26" size="1.27" layer="27" font="vector" rot="R270"/>
 </element>

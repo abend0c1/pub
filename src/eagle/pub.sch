@@ -14116,7 +14116,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
 <part name="JP3" library="pub" deviceset="USB-MINIB" device="-5PIN"/>
 <part name="JP1" library="pub" deviceset="PINHD-1X5" device="/90" value="MIKROPROG"/>
-<part name="JP2" library="pub" deviceset="PINHD-1X6" device="/90" value="PICKKIT"/>
+<part name="JP2" library="pub" deviceset="PINHD-1X6" device="/90" value="PICKIT"/>
 <part name="RB3" library="testpad" deviceset="TP" device="B1,27"/>
 </parts>
 <sheets>
