@@ -4,6 +4,7 @@ Program a button to send keystrokes to your computer
 
 
 PUB! is a Programmable USB Button on which you can program with a sequence of keystrokes. When you press the button those keystrokes are "replayed" over a USB connection.
+The button is programmed using an innovative and slightly quirky interface that does not require any custom software to be installed on your computer. All you need is a text editor like Notepad or gedit.
 
 
 
@@ -11,6 +12,7 @@ Features
 --------
 - One-button design (a rotary encoder with a built in switch)
 - Programmed by using an ordinary text editor as a display (for example, gedit on Linux, or Notepad on Windows)
+- Up to 127 keystrokes can be recorded and played back
 - Supports a GOTO function, so you can program loops
 - Can send USB System Control codes (Power off, sleep, wake) to your PC
 - Can send USB Consumer Device functions (e.g. Mute, Play, Pause, Stop, etc.)
@@ -24,6 +26,7 @@ The possibilities are fairly broad including:
 - Support for a number of "registers" to record state. For example, R0 to R15.
 - Support for basic arithmetic. Add, subtract, etc.
 - Support for conditional logic. For example, Compare to value, Jump on zero, etc.
+- Addition of an external EEPROM for extra keystroke capacity.
 
 
 Construction
