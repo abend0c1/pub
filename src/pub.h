@@ -60,9 +60,9 @@ ASSIGN_PIN(LCD_D7, B5)
 uint8_t MEMORY[256];   // Memory
 
 uint8_t FORMAT;   // Format for SAY instruction
-#define FORMAT_CHAR 0
-#define FORMAT_HEX  1
-#define FORMAT_DEC  2
+#define FORMAT_HEX  0
+#define FORMAT_DEC  1
+#define FORMAT_CHAR 2
 
 uint8_t WRK;      // Working register
 
@@ -221,57 +221,58 @@ union
 #define PAGE_CONSUMER_DEVICE       0x2
 
 #define PAGE_DO                    0xD
-  #define DO_DELETE                  0X0
-  #define DO_REDISPLAY               0X1
-  //      DO_                        0X2
-  //      DO_                        0X3
-  //      DO_                        0X4
-  //      DO_                        0X5
-  //      DO_                        0X6
-  //      DO_                        0X7
-  //      DO_                        0X8
-  //      DO_                        0X9
-  //      DO_                        0XA
-  //      DO_                        0XB
-  //      DO_                        0XC
-  //      DO_                        0XD
-  #define DO_LOAD                    0XE
-  #define DO_SAVE                    0XF
+  #define DO_DELETE                  0x0
+  #define DO_REDISPLAY               0x1
+  //      DO_                        0x2
+  //      DO_                        0x3
+  //      DO_                        0x4
+  //      DO_                        0x5
+  //      DO_                        0x6
+  //      DO_                        0x7
+  //      DO_                        0x8
+  //      DO_                        0x9
+  //      DO_                        0xA
+  //      DO_                        0xB
+  //      DO_                        0xC
+  //      DO_                        0xD
+  #define DO_LOAD                    0xE
+  #define DO_SAVE                    0xF
 
 #define PAGE_EXECUTE               0xE
-  #define EXECUTE_SET                0X0
-  #define EXECUTE_GET                0X1
-  #define EXECUTE_PUT                0X2
-  #define EXECUTE_COMPARE_IMMEDIATE  0X3
-  #define EXECUTE_COMPARE            0X4
-  #define EXECUTE_SAY                0X5
-  #define EXECUTE_FORMAT             0X6
-  #define EXECUTE_ADD_IMMEDIATE      0X7
-  #define EXECUTE_SUB_IMMEDIATE      0X8
-  #define EXECUTE_ADD                0XA
-  #define EXECUTE_SUB                0XB
-  #define EXECUTE_MUL                0XC
-  #define EXECUTE_DIV                0XD
-  #define EXECUTE_WAIT_MS            0XE
-  #define EXECUTE_WAIT_SEC           0XF
+  #define EXECUTE_SET                0x0
+  #define EXECUTE_GET                0x1
+  #define EXECUTE_PUT                0x2
+  #define EXECUTE_COMPARE_IMMEDIATE  0x3
+  #define EXECUTE_COMPARE            0x4
+  #define EXECUTE_SAY                0x5
+  #define EXECUTE_FORMAT             0x6
+  #define EXECUTE_ADD_IMMEDIATE      0x7
+  #define EXECUTE_SUB_IMMEDIATE      0x8
+  #define EXECUTE_CLEAR              0x9
+  #define EXECUTE_ADD                0xA
+  #define EXECUTE_SUB                0xB
+  #define EXECUTE_MUL                0xC
+  #define EXECUTE_DIV                0xD
+  #define EXECUTE_WAIT_MS            0xE
+  #define EXECUTE_WAIT_SEC           0xF
 
 #define PAGE_JUMP                  0xF
-  #define JUMP_RELATIVE              0X0
-  #define JUMP_IF_CARRY              0X1
-  #define JUMP_IF_HIGH               0X2
-  #define JUMP_IF_HIGH_OR_CARRY      0X3
-  #define JUMP_IF_LOW                0X4
-  #define JUMP_IF_LOW_OR_CARRY       0X5
-  #define JUMP_IF_NOT_ZERO_OR_CARRY  0X6
-  #define JUMP_IF_NOT_ZERO           0X7
-  #define JUMP_IF_ZERO               0X8
-  #define JUMP_IF_ZERO_OR_CARRY      0X9
-  #define JUMP_IF_NOT_LOW_OR_CARRY   0XA
-  #define JUMP_IF_NOT_LOW            0XB
-  #define JUMP_IF_ZERO_OR_LOW        0XC
-  #define JUMP_IF_NOT_HIGH           0XD
-  #define JUMP_IF_NOT_CARRY          0XE
-  #define JUMP                       0XF
+  #define JUMP_RELATIVE              0x0
+  #define JUMP_IF_CARRY              0x1
+  #define JUMP_IF_HIGH               0x2
+  #define JUMP_IF_HIGH_OR_CARRY      0x3
+  #define JUMP_IF_LOW                0x4
+  #define JUMP_IF_LOW_OR_CARRY       0x5
+  #define JUMP_IF_NOT_ZERO_OR_CARRY  0x6
+  #define JUMP_IF_NOT_ZERO           0x7
+  #define JUMP_IF_ZERO               0x8
+  #define JUMP_IF_ZERO_OR_CARRY      0x9
+  #define JUMP_IF_NOT_LOW_OR_CARRY   0xA
+  #define JUMP_IF_NOT_LOW            0xB
+  #define JUMP_IF_ZERO_OR_LOW        0xC
+  #define JUMP_IF_NOT_HIGH           0xD
+  #define JUMP_IF_NOT_CARRY          0xE
+  #define JUMP                       0xF
 
 
 const char ASCII_to_USB[] =

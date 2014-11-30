@@ -195,6 +195,7 @@ CREDITS  - Rotary encoder logic based on code originally written by Ben Buxton.
 
 HISTORY  - Date     Ver   By  Reason (most recent at the top please)
            -------- ----- --- -------------------------------------------------
+           20141130 0.92  AJA Added arithmetic and conditional jump instructions
            20141108 0.91  AJA Fixed PCB to match code. Rotary button on RB6
            20141012 0.90  AJA First published version
            20140817 0.10  AJA Initial development
@@ -315,6 +316,8 @@ const char * getUsageDesc (t_action * pAction) // Note: Literals returned as con
           return "Let W = W + ";
         case EXECUTE_SUB_IMMEDIATE:
           return "Let W = W - ";
+        case EXECUTE_CLEAR:
+          return "Clear memory to ";
         case EXECUTE_ADD:
           return "Let W = W + R";
         case EXECUTE_SUB:
@@ -880,6 +883,9 @@ void sayUsage(uint8_t nAction, t_action * pAction)
       sayConst(getUsageDesc(pAction));
       switch (pAction->key.mod)
       {
+        case EXECUTE_CLEAR:
+          sayHex(pAction->key.usage);
+          break;
         case EXECUTE_WAIT_SEC:
           sayDec(pAction->key.usage);
           sayConst(" sec");
@@ -1365,6 +1371,7 @@ void setConditionCode(int8_t n)
 
 void playInstruction(t_action * pAction)
 {
+  uint8_t i;
   uint16_t nIntervals;
   switch (pAction->inst.opcode)
   {
@@ -1392,14 +1399,14 @@ void playInstruction(t_action * pAction)
       switch (FORMAT)
       {
         case FORMAT_CHAR:
-          say(&pAction->inst.operand);    // For example: A
+          say(getMemory(pAction->inst.operand));    // For example: A
           break;
         case FORMAT_DEC:
-          sayDec(pAction->inst.operand);  // For example: 65
+          sayDec(getMemory(pAction->inst.operand));  // For example: 65
           break;
         case FORMAT_HEX:
         default:
-          sayHex(pAction->inst.operand);  // For example: 41
+          sayHex(getMemory(pAction->inst.operand));  // For example: 41
           break;
       }
       break;
@@ -1416,6 +1423,14 @@ void playInstruction(t_action * pAction)
     case EXECUTE_SUB_IMMEDIATE:       // W = W - xx
       WRK = WRK - pAction->inst.operand;
       setConditionCode(WRK);
+      break;
+
+    case EXECUTE_CLEAR:               // xx -> [00-FF]
+      for (i = 0; i < sizeof(MEMORY); i++)
+      {
+        setMemory(i, pAction->inst.operand);
+      }
+      setMemory(sizeof(MEMORY), pAction->inst.operand);
       break;
 
     case EXECUTE_ADD:                 // W = W + [xx]
