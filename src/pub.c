@@ -278,9 +278,100 @@ const char * getUsageDesc (t_action * pAction) // Note: Literals returned as con
 //  case 0xA0:     // Reserved
 //  case 0xB0:     // Reserved
 //  case 0xC0:     // Reserved
-//  case 0xD0:     // Reserved
-//  case 0xE0:     // Reserved
-    default: return "";
+
+    case PAGE_DO:
+      switch (pAction->key.mod)
+      {
+        case DO_DELETE:
+          return "Delete action at ";
+        case DO_LOAD:
+          return "Load from EEPROM";
+        case DO_SAVE:
+          return "Save to EEPROM";
+        case DO_REDISPLAY:
+          return "Redisplay";
+        default: 
+          return "";
+      }
+
+    case PAGE_EXECUTE:
+      switch (pAction->key.mod)
+      {
+        case EXECUTE_SET:
+          return "Let W = ";
+        case EXECUTE_GET:
+          return "Get W from R";
+        case EXECUTE_PUT:
+          return "Put W in R";
+        case EXECUTE_COMPARE_IMMEDIATE:
+          return "Compare W to ";
+        case EXECUTE_COMPARE:
+          return "Compare W to R";
+        case EXECUTE_SAY:
+          return "Say R";
+        case EXECUTE_FORMAT:
+          return "Format";
+        case EXECUTE_ADD_IMMEDIATE:
+          return "Let W = W + ";
+        case EXECUTE_SUB_IMMEDIATE:
+          return "Let W = W - ";
+        case EXECUTE_ADD:
+          return "Let W = W + R";
+        case EXECUTE_SUB:
+          return "Let W = W - R";
+        case EXECUTE_MUL:
+          return "Let W = W x R";
+        case EXECUTE_DIV:
+          return "Let W = W / R";
+        case EXECUTE_WAIT_MS:
+          return "Wait "; // milliseconds
+        case EXECUTE_WAIT_SEC:
+          return "Wait "; // seconds
+        default:
+          return "";
+      }
+
+    case PAGE_JUMP:
+      switch (pAction->key.mod)
+      {
+        case JUMP_RELATIVE:
+          return "Jump Relative";
+        case JUMP_IF_CARRY:
+          return "Jump if Carry";
+        case JUMP_IF_HIGH:
+          return "Jump if High";
+        case JUMP_IF_HIGH_OR_CARRY:
+          return "Jump if High or Carry";
+        case JUMP_IF_LOW:
+          return "Jump if Low";
+        case JUMP_IF_LOW_OR_CARRY:
+          return "Jump if Low or Carry";
+        case JUMP_IF_NOT_ZERO_OR_CARRY:
+          return "Jump if Not Zero or Carry";
+        case JUMP_IF_NOT_ZERO:
+          return "Jump if Not Zero";
+        case JUMP_IF_ZERO:
+          return "Jump if Zero";
+        case JUMP_IF_ZERO_OR_CARRY:
+          return "Jump if Zero or Carry";
+        case JUMP_IF_NOT_LOW_OR_CARRY:
+          return "Jump if Not Low or Carry";
+        case JUMP_IF_NOT_LOW:
+          return "Jump if Not Low";
+        case JUMP_IF_ZERO_OR_LOW:
+          return "Jump if Zero or Low";
+        case JUMP_IF_NOT_HIGH:
+          return "Jump if Not High";
+        case JUMP_IF_NOT_CARRY:
+          return "Jump if Not Carry";
+        case JUMP:
+          return "Jump";
+        default:
+          break;
+      }
+
+    default: 
+      return "";
   }
 }
 
@@ -390,6 +481,23 @@ void sayHex(uint8_t c)
   say(xString);
 }
 
+void sayDec(uint8_t c)
+{
+  char * p;
+  char sString[4]; // "nnn"
+  ByteToStr(c, &sString);
+  for (p=&sString; *p == ' '; p++);  // Find first non-blank
+  say(p);
+}
+
+void saySignedDec(int8_t c)
+{
+  char * p;
+  char sString[4]; // "nnn"
+  ShortToStr(c, &sString);
+  for (p=&sString; *p == ' '; p++);  // Find first non-blank
+  say(p);
+}
 
 void sayKey(uint8_t modifiers, uint8_t key)
 {
@@ -695,11 +803,9 @@ const char * getPageDesc (uint8_t page)
     case PAGE_KEYBOARD:         return "Set Keystroke";
     case PAGE_SYSTEM_CONTROL:   return "Set System Control Command";
     case PAGE_CONSUMER_DEVICE:  return "Set Consumer Device Command";
-    case PAGE_DELETE:           return "Delete Action";
-    case PAGE_RELOAD:           return "Reload from EEPROM";
-    case PAGE_REDISPLAY:        return "Redisplay";
-    case PAGE_SAVE:             return "Save to EEPROM";
-    case PAGE_LOCAL_FUNCTION:   return "Set Local Function";
+    case PAGE_DO:               return "Do Local Function";
+    case PAGE_EXECUTE:          return "Execute Instruction";
+    case PAGE_JUMP:             return "Jump On Condition";
     default:                    return "";
   }
 }
@@ -720,12 +826,13 @@ void sayPage()
     case PAGE_KEYBOARD:
     case PAGE_SYSTEM_CONTROL:
     case PAGE_CONSUMER_DEVICE:
-    case PAGE_LOCAL_FUNCTION:
+    case PAGE_DO:
+    case PAGE_EXECUTE:
+    case PAGE_JUMP:
       sayConst(" at ");
       sayHex(nActionFocus);
       break;
 
-    case PAGE_DELETE:
     default:
       break;
   }
@@ -734,10 +841,8 @@ void sayPage()
 
 void sayUsage(uint8_t nAction, t_action * pAction)
 {
-  char * p;
-  char sWork[4]; // "nnn"
 
-  if (pAction->key.page == PAGE_DELETE)
+  if (pAction->key.page == PAGE_DO)
   {
     sayConst("        ");
   }
@@ -749,6 +854,7 @@ void sayUsage(uint8_t nAction, t_action * pAction)
     sayHex(pAction->key.usage);
     sayKey(NONE, SPACE);
   }
+  
   switch (pAction->key.page)
   {
     case PAGE_KEYBOARD:
@@ -756,42 +862,51 @@ void sayUsage(uint8_t nAction, t_action * pAction)
       sayConst(getUsageDesc(pAction));
       break;
 
-    case PAGE_LOCAL_FUNCTION:
+    case PAGE_JUMP:
+      sayConst(getUsageDesc(pAction));
+      if (pAction->key.mod == JUMP_RELATIVE)
+      {
+        sayConst(" by ");
+        saySignedDec(pAction->key.usage);
+      }
+      else
+      {
+        sayConst(" to ");
+        sayHex(pAction->key.usage);
+      }
+      break;
+
+    case PAGE_EXECUTE:
+      sayConst(getUsageDesc(pAction));
       switch (pAction->key.mod)
       {
-        case LOCAL_FUNCTION_WAIT_SEC:
-          sayConst("Wait ");
-          ByteToStr(pAction->key.usage, &sWork);
-          for (p=&sWork; *p == ' '; p++);  // Find first non-blank
-          say(p);
+        case EXECUTE_WAIT_SEC:
+          sayDec(pAction->key.usage);
           sayConst(" sec");
           break;
-        case LOCAL_FUNCTION_WAIT_MS:
-          sayConst("Wait ");
-          ByteToStr(pAction->key.usage, &sWork);
-          for (p=&sWork; *p == ' '; p++);  // Find first non-blank
-          say(p);
+        case EXECUTE_WAIT_MS:
+          sayDec(pAction->key.usage);
           sayConst(" ms");
           break;
-        case LOCAL_FUNCTION_GOTO:
-          sayConst("Goto ");
-          sayHex(pAction->key.usage);
-          break;
         default:
+          sayHex(pAction->key.usage);
           break;
       }
       break;
 
-    case PAGE_DELETE:
-      sayConst("Delete action");
-      if (nAction)  // If we have actions to delete
+    case PAGE_DO:
+      sayConst(getUsageDesc(pAction));
+      if (pAction->key.mod == DO_DELETE)
       {
-        if (pAction->key.usage >= nAction)
+        if (nAction)  // If we have actions to delete
         {
-          pAction->key.usage = nAction-1;
+          if (pAction->key.usage >= nAction)
+          {
+            pAction->key.usage = nAction-1;
+          }
+          sayConst(" at ");
+          sayHex(pAction->key.usage);
         }
-        sayConst(" at ");
-        sayHex(pAction->key.usage);
       }
       break;
 
@@ -898,7 +1013,7 @@ void nextKnownUsage(int8_t rotation)
   }
 }
 
-void clearAll()
+void clearDisplay()
 {
   selectAll();
   sayKey(NONE, DELETE);
@@ -925,11 +1040,14 @@ void setFocus(uint8_t newFocus)
       case PAGE_CONSUMER_DEVICE:
         sayConst("Cons:   Turn=Select"); // , Press=OK, Press+Hold=Return
         break;
-      case PAGE_LOCAL_FUNCTION:
-        sayConst("Local:  Turn=Modify, Press+Turn=Select"); // , Press=OK, Press+Hold=Return
+      case PAGE_DO:
+        sayConst("Do:     Turn=Modify, Press+Turn=Select"); // , Press=OK, Press+Hold=Return
         break;
-      case PAGE_DELETE:
-        sayConst("Delete: Turn=Select"); // , Press=OK, Press+Hold=Return
+      case PAGE_EXECUTE:
+        sayConst("Exec:   Turn=Modify, Press+Turn=Select"); // , Press=OK, Press+Hold=Return
+        break;
+      case PAGE_JUMP:
+        sayConst("Jump:   Turn=Modify, Press+Turn=Select"); // , Press=OK, Press+Hold=Return
         break;
       default:
         break;
@@ -1027,6 +1145,22 @@ void changePage()
   sayUsage(nActionFocus, &action);  // Overwrite it with a usage from the new page
 }
 
+void displayProgrammingMenu()
+{
+  clearDisplay();
+  sayConst("PUB! Programmable USB Button v" VERSION);
+  newLine();
+  newLine();
+  newLine();
+  newLine();
+  sayConst("At Code Action");
+  sayActions();
+  action.key.page = PAGE_KEYBOARD;
+  action.key.usage = USB_KEY_A;
+  action.key.mod = 0;
+  sayPage();
+  setFocus(FOCUS_ON_PAGE);
+}
 
 void changeUsage()
 {
@@ -1045,7 +1179,9 @@ void changeUsage()
       switch (action.key.page)
       {
         case PAGE_KEYBOARD:         // Push+turn adjusts the key modifier (ALT, SHIFT etc)
-        case PAGE_LOCAL_FUNCTION:   // Push+turn adjusts the local function (GOTO, EXIT, DELAY etc)
+        case PAGE_DO:               // Push+turn adjusts the local function
+        case PAGE_EXECUTE:          // Push+turn adjusts the instruction
+        case PAGE_JUMP:             // Push+turn adjusts the jump condition
           rotation > 0 ? action.key.mod++ : action.key.mod--;
           break;
 
@@ -1068,9 +1204,34 @@ void changeUsage()
   TMR3ON_bit = 0;   // Disable long-press timer
   if (bAppendAction)
   {
-    if (action.key.page == PAGE_DELETE) // If we are removing an action
+    if (action.key.page == PAGE_DO) // If we are doing a local function
     {
-      deleteAction(action.key.usage);
+      switch (action.key.mod)
+      {
+        case DO_DELETE:                     // Delete action
+          deleteAction(action.key.usage);
+          break;
+          
+        case DO_SAVE:
+          saveInEEPROM();
+          clearDisplay();
+          sayConst("Saved in EEPROM");      // Save actions in EEPROM
+          sayKey(SHIFT, HOME);              // Highlight it
+          bProgramMode = FALSE;
+          break;
+
+        case DO_LOAD:
+          loadFromEEPROM();
+          clearDisplay();
+          sayConst("Reloaded from EEPROM"); // Re-instate actions from EEPROM
+          sayKey(SHIFT, HOME);              // Highlight it
+          bProgramMode = FALSE;
+          break;
+
+        case DO_REDISPLAY:
+          displayProgrammingMenu();
+          break;
+      }
     }
     else  // we are appending or updating an action
     {
@@ -1093,28 +1254,11 @@ void changeUsage()
         sayAction(nActionFocus);
       }
       nActionFocus++;   // Automatically focus on the following action
+      selectLine(SELECTION_LINE);
+      sayUsage(nActionFocus, &action);
+      selectLine(SELECTION_LINE);
     }
-    selectLine(SELECTION_LINE);
-    sayUsage(nActionFocus, &action);
-    selectLine(SELECTION_LINE);
   }
-}
-
-void displayProgrammingMenu()
-{
-  clearAll();
-  sayConst("PUB! Programmable USB Button v" VERSION);
-  newLine();
-  newLine();
-  newLine();
-  newLine();
-  sayConst("At Code Action");
-  sayActions();
-  action.key.page = PAGE_KEYBOARD;
-  action.key.usage = USB_KEY_A;
-  action.key.mod = 0;
-  sayPage();
-  setFocus(FOCUS_ON_PAGE);
 }
 
 void programMode()
@@ -1163,36 +1307,14 @@ void programMode()
         case FOCUS_ON_PAGE:
           if (bLongPress)
           {
-            clearAll();
+            clearDisplay();
             sayConst("Not saved in EEPROM");    // Leave actions in EEPROM unchanged
             sayKey(SHIFT, HOME);                // Highlight it
             bProgramMode = FALSE;
           }
-          else switch (action.key.page)
+          else
           {
-            case PAGE_SAVE:
-              saveInEEPROM();
-              clearAll();
-              sayConst("Saved in EEPROM");      // Save actions in EEPROM
-              sayKey(SHIFT, HOME);              // Highlight it
-              bProgramMode = FALSE;
-              break;
-
-            case PAGE_RELOAD:
-              loadFromEEPROM();
-              clearAll();
-              sayConst("Reloaded from EEPROM");  // Re-instate actions from EEPROM
-              sayKey(SHIFT, HOME);              // Highlight it
-              bProgramMode = FALSE;
-              break;
-
-            case PAGE_REDISPLAY:
-              displayProgrammingMenu();
-              break;
-
-            default:
-              changePage();
-              break;
+            changePage();
           }
           break;
 
@@ -1221,15 +1343,130 @@ void programMode()
   }
 }
 
+uint8_t getMemory(uint8_t addr)
+{
+  return MEMORY[addr];
+}
+
+void setMemory(uint8_t addr, uint8_t value)
+{
+  MEMORY[addr] = value;
+}
+
+void setConditionCode(int8_t n)
+{
+  if (n == 0)
+    CC = CC_Z;
+  else if (n > 0)
+    CC = CC_P;
+  else
+    CC = CC_M;
+}
+
+void playInstruction(t_action * pAction)
+{
+  uint16_t nIntervals;
+  switch (pAction->inst.opcode)
+  {
+    case EXECUTE_SET:                 // W = xx
+      WRK = pAction->inst.operand;
+      break;
+      
+    case EXECUTE_GET:                 // W <- [xx]
+      WRK = getMemory(pAction->inst.operand);
+      break;
+      
+    case EXECUTE_PUT:                 // W -> [xx]
+      setMemory(pAction->inst.operand, WRK);
+      break;
+      
+    case EXECUTE_COMPARE_IMMEDIATE:   // W : xx
+      setConditionCode(WRK - pAction->inst.operand);
+      break;
+        
+    case EXECUTE_COMPARE:             // W : [xx]
+      setConditionCode(WRK - getMemory(pAction->inst.operand));
+      break;
+
+    case EXECUTE_SAY:                 // SAY f(xx,format)
+      switch (FORMAT)
+      {
+        case FORMAT_CHAR:
+          say(&pAction->inst.operand);    // For example: A
+          break;
+        case FORMAT_DEC:
+          sayDec(pAction->inst.operand);  // For example: 65
+          break;
+        case FORMAT_HEX:
+        default:
+          sayHex(pAction->inst.operand);  // For example: 41
+          break;
+      }
+      break;
+
+    case EXECUTE_FORMAT:              // FORMAT = char|hex|dec
+      FORMAT = pAction->inst.operand;
+      break;
+
+    case EXECUTE_ADD_IMMEDIATE:       // W = W + xx
+      WRK = WRK + pAction->inst.operand;
+      setConditionCode(WRK);
+      break;
+
+    case EXECUTE_SUB_IMMEDIATE:       // W = W - xx
+      WRK = WRK - pAction->inst.operand;
+      setConditionCode(WRK);
+      break;
+
+    case EXECUTE_ADD:                 // W = W + [xx]
+      WRK = WRK + getMemory(pAction->inst.operand);
+      setConditionCode(WRK);
+      break;
+
+    case EXECUTE_SUB:                 // W = W - [xx]
+      WRK = WRK - getMemory(pAction->inst.operand);
+      setConditionCode(WRK);
+      break;
+
+    case EXECUTE_MUL:                 // W = W x [xx]
+      WRK = WRK * getMemory(pAction->inst.operand);
+      setConditionCode(WRK);
+      break;
+
+    case EXECUTE_DIV:                 // W = W / [xx]
+      WRK = WRK / getMemory(pAction->inst.operand);
+      setConditionCode(WRK);
+      break;
+
+    case EXECUTE_WAIT_SEC:            // Wait 0 to 255 seconds (approximately)
+      sayNoKeyPressed();  // Release key (otherwise host will do a "key repeat")
+      nIntervals = 200 * pAction->inst.operand;  // Number of 5 ms intervals to wait
+      while (nIntervals-- && !bUserInterrupt)    // Long waits can be interrupted
+      {
+        Delay_ms(5);
+      }
+      break;
+
+    case EXECUTE_WAIT_MS:             // Wait 0 to 255 milliseconds (approximately)
+      nIntervals = pAction->inst.operand; // Number of 1 ms intervals to wait
+      while (nIntervals--)
+      {
+        Delay_ms(1);
+      }
+      break;
+
+    default:
+      break;
+  }
+}
 
 
 void play()
 {
-  uint8_t i;
-  uint8_t nCount;
+  uint8_t pc;             // Program Counter (instruction address)
   t_action * pAction = &aAction;
   bUserInterrupt = FALSE; // The user can interrupt playback by pressing the button
-  for (i = 0; i < nAction && !bUserInterrupt; i++, pAction++)
+  for (pc = 0; pc < nAction && !bUserInterrupt; pc++, pAction++)
   {
     ACTIVITY_LED = ON;         // The LED will be turned off by the next timer interrupt
     switch (pAction->key.page)
@@ -1237,43 +1474,66 @@ void play()
       case PAGE_KEYBOARD:
         playKeystroke(pAction);
         break;
+
       case PAGE_SYSTEM_CONTROL:
         playSystemControlCommand(pAction);
         break;
+
       case PAGE_CONSUMER_DEVICE:
         playConsumerDeviceCommand(pAction);
         break;
-      case PAGE_LOCAL_FUNCTION:
-        switch (pAction->key.mod)
-        {
-          case LOCAL_FUNCTION_WAIT_SEC:
-            sayNoKeyPressed();  // Release key (otherwise host will do a "key repeat")
-            nCount = pAction->key.usage;  // Number of seconds to wait
-            while (!bUserInterrupt && nCount--)  // Long delays can be interrupted
+
+      case PAGE_EXECUTE:
+        playInstruction(pAction);
+        break;
+
+      case PAGE_JUMP:
+        switch (pAction->jump.mask)
+        { //                       Condition Code: ZLHC (Side note: This is similar to IBM mainframes)
+          case JUMP_RELATIVE:                   // 0000 (...not this though. IBM mainframes use mask 0 as a No-op)
+            if ((uint8_t)(pc + (int8_t) pAction->jump.addr) < nAction)
             {
-              Delay_ms(1000);
-            }
-            break;
-          case LOCAL_FUNCTION_WAIT_MS:
-            nCount = pAction->key.usage;  // Number of milliseconds to wait
-            while (nCount--)
-            {
-              Delay_ms(1);
-            }
-            break;
-          case LOCAL_FUNCTION_GOTO:
-            if (pAction->key.usage < nAction)
-            {
-              i = pAction->key.usage;
-              pAction = &aAction[i];
+              pc += (int8_t) pAction->jump.addr;
+              pAction = &aAction[pc];
               pAction--;
-              i--;
+              pc--;
             }
             break;
+                                                // ELH- <- Comparison
+                                                // ZMPO <- Arithmetic
+          case JUMP_IF_CARRY:                   // 0001
+          case JUMP_IF_HIGH:                    // 0010
+          case JUMP_IF_HIGH_OR_CARRY:           // 0011
+          case JUMP_IF_LOW:                     // 0100
+          case JUMP_IF_LOW_OR_CARRY:            // 0101
+          case JUMP_IF_NOT_ZERO_OR_CARRY:       // 0110
+          case JUMP_IF_NOT_ZERO:                // 0111
+          case JUMP_IF_ZERO:                    // 1000
+          case JUMP_IF_ZERO_OR_CARRY:           // 1001
+          case JUMP_IF_NOT_LOW_OR_CARRY:        // 1010
+          case JUMP_IF_NOT_LOW:                 // 1011
+          case JUMP_IF_ZERO_OR_LOW:             // 1100
+          case JUMP_IF_NOT_HIGH:                // 1101
+          case JUMP_IF_NOT_CARRY:               // 1110
+            if (!(pAction->jump.mask & CC))     // If none of the required mask bits are on in the current Condition Code
+              break;                            // Then the condition is not met, so ignore the jump instruction
+            // Else fall through to...
+          case JUMP:                            // 1111
+            if (pAction->jump.addr < nAction)
+            {
+              pc = pAction->jump.addr;          // Set the new Program Counter location
+              pAction = &aAction[pc];           // Point to the action at that location
+              pAction--;                        // Adjust down by 1 because the outer loop
+              pc--;                             // will increment it
+            }
+            // Else ignore jumps to destinations outside the current program size
+            break;
+
           default:
             break;
         }
         break;
+
       default:
         break;
     }

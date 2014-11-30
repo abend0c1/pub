@@ -1,4 +1,4 @@
-#define VERSION "0.91"
+#define VERSION "0.92"
 
 #define OUTPUT        0
 #define INPUT         1
@@ -35,8 +35,42 @@
 #define PRESSED     0b00000001
 #define NOT_PRESSED 0b00000000
 
+/*
+#define USE_LAT
+
+#ifdef USE_LAT
+  #define ASSIGN_PIN(name,b) \
+  sbit name               at LAT ## b ## _bit; \
+  sbit name ## _Direction at TRIS ## b ## _bit;
+#else
+  #define ASSIGN_PIN(name,b) \
+  sbit name               at R ## b ## _bit; \
+  sbit name ## _Direction at TRIS ## b ## _bit;
+#endif
 
 
+ASSIGN_PIN(LCD_EN, B0)
+ASSIGN_PIN(LCD_RS, B1)
+ASSIGN_PIN(LCD_D4, B2)
+ASSIGN_PIN(LCD_D5, B3)
+ASSIGN_PIN(LCD_D6, B4)
+ASSIGN_PIN(LCD_D7, B5)
+*/
+
+uint8_t MEMORY[256];   // Memory
+
+uint8_t FORMAT;   // Format for SAY instruction
+#define FORMAT_CHAR 0
+#define FORMAT_HEX  1
+#define FORMAT_DEC  2
+
+uint8_t WRK;      // Working register
+
+uint8_t CC;       // Condition Code
+#define CC_Z 0x8
+#define CC_M 0x4
+#define CC_P 0x2
+#define CC_O 0x1
 
 
 
@@ -85,18 +119,34 @@ typedef struct
   uint8_t page:4;     // 0010
 } t_systemControlAction;
 
+typedef struct
+{ // Instruction:   // 1110ccccoooooooo
+  uint8_t operand;  //         oooooooo
+  uint8_t opcode:4; //     cccc
+  uint8_t page:4;   // 1110
+} t_instAction;
+
+typedef struct
+{ // Jump:          // 1111mmmmaaaaaaaa
+  uint8_t addr;     //         aaaaaaaa
+  uint8_t mask:4;   //     mmmm
+  uint8_t page:4;   // 1111
+} t_jumpAction;
+
 typedef union
 {
   t_keyboardAction       key;   // 0000mmmmuuuuuuuu = 0x0muu
   t_consumerDeviceAction cons;  // 0001uuuuuuuuuuuu = 0x1uuu
   t_systemControlAction  sys;   // 0010....uuuuuuuu = 0x2.uu
+  t_instAction           inst;  // 1110ccccoooooooo = 0xEcoo
+  t_jumpAction           jump;  // 1111mmmmaaaaaaaa = 0xFmaa
   uint16_t               action;// ................ = 0x....
 } t_action;
 
 uint8_t nAction;          // Number of actions
 uint8_t nActionFocus;   // Action with the current focus
 t_action action;
-t_action aAction[127];    // 127 x 2-byte actions + 2-byte header fills EEPROM
+t_action aAction[127];    // 127 x 2-byte actions + 2-byte header fills the onboard EEPROM
 
 #define FOCUS_ON_PAGE  0
 #define FOCUS_ON_USAGE 1
@@ -164,18 +214,65 @@ union
   } s;
 } usbData;
 
-#define PAGE_KEYBOARD              0x00
-#define PAGE_SYSTEM_CONTROL        0x01
-#define PAGE_CONSUMER_DEVICE       0x02
-#define PAGE_DELETE                0x0B
-#define PAGE_RELOAD                0x0C
-#define PAGE_REDISPLAY             0x0D
-#define PAGE_SAVE                  0x0E
-#define PAGE_LOCAL_FUNCTION        0x0F
+#define PAGE_KEYBOARD              0x0
 
-#define LOCAL_FUNCTION_WAIT_MS     0XE
-#define LOCAL_FUNCTION_WAIT_SEC    0XF
-#define LOCAL_FUNCTION_GOTO        0X0
+#define PAGE_SYSTEM_CONTROL        0x1
+
+#define PAGE_CONSUMER_DEVICE       0x2
+
+#define PAGE_DO                    0xD
+  #define DO_DELETE                  0X0
+  #define DO_REDISPLAY               0X1
+  //      DO_                        0X2
+  //      DO_                        0X3
+  //      DO_                        0X4
+  //      DO_                        0X5
+  //      DO_                        0X6
+  //      DO_                        0X7
+  //      DO_                        0X8
+  //      DO_                        0X9
+  //      DO_                        0XA
+  //      DO_                        0XB
+  //      DO_                        0XC
+  //      DO_                        0XD
+  #define DO_LOAD                    0XE
+  #define DO_SAVE                    0XF
+
+#define PAGE_EXECUTE               0xE
+  #define EXECUTE_SET                0X0
+  #define EXECUTE_GET                0X1
+  #define EXECUTE_PUT                0X2
+  #define EXECUTE_COMPARE_IMMEDIATE  0X3
+  #define EXECUTE_COMPARE            0X4
+  #define EXECUTE_SAY                0X5
+  #define EXECUTE_FORMAT             0X6
+  #define EXECUTE_ADD_IMMEDIATE      0X7
+  #define EXECUTE_SUB_IMMEDIATE      0X8
+  #define EXECUTE_ADD                0XA
+  #define EXECUTE_SUB                0XB
+  #define EXECUTE_MUL                0XC
+  #define EXECUTE_DIV                0XD
+  #define EXECUTE_WAIT_MS            0XE
+  #define EXECUTE_WAIT_SEC           0XF
+
+#define PAGE_JUMP                  0xF
+  #define JUMP_RELATIVE              0X0
+  #define JUMP_IF_CARRY              0X1
+  #define JUMP_IF_HIGH               0X2
+  #define JUMP_IF_HIGH_OR_CARRY      0X3
+  #define JUMP_IF_LOW                0X4
+  #define JUMP_IF_LOW_OR_CARRY       0X5
+  #define JUMP_IF_NOT_ZERO_OR_CARRY  0X6
+  #define JUMP_IF_NOT_ZERO           0X7
+  #define JUMP_IF_ZERO               0X8
+  #define JUMP_IF_ZERO_OR_CARRY      0X9
+  #define JUMP_IF_NOT_LOW_OR_CARRY   0XA
+  #define JUMP_IF_NOT_LOW            0XB
+  #define JUMP_IF_ZERO_OR_LOW        0XC
+  #define JUMP_IF_NOT_HIGH           0XD
+  #define JUMP_IF_NOT_CARRY          0XE
+  #define JUMP                       0XF
+
 
 const char ASCII_to_USB[] =
 { // Top bit on means capitalise with Left Shift
