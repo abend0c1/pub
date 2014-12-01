@@ -1375,11 +1375,11 @@ void playInstruction(t_action * pAction)
   uint16_t nIntervals;
   switch (pAction->inst.opcode)
   {
-    case EXECUTE_SET:                 // W = xx
+    case EXECUTE_SET:                 // W = xx    (load constant xx)
       WRK = pAction->inst.operand;
       break;
       
-    case EXECUTE_GET:                 // W <- [xx]
+    case EXECUTE_GET:                 // W <- [xx] (load contents of "memory" at index xx)
       WRK = getMemory(pAction->inst.operand);
       break;
       
@@ -1399,7 +1399,7 @@ void playInstruction(t_action * pAction)
       switch (FORMAT)
       {
         case FORMAT_CHAR:
-          say(getMemory(pAction->inst.operand));    // For example: A
+          say(getMemory(pAction->inst.operand));     // For example: A
           break;
         case FORMAT_DEC:
           sayDec(getMemory(pAction->inst.operand));  // For example: 65
