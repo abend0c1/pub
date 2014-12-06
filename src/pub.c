@@ -284,7 +284,7 @@ const char * getUsageDesc (t_action * pAction) // Note: Literals returned as con
       switch (pAction->key.mod)
       {
         case DO_DELETE:
-          return "Delete action at ";
+          return "Delete action";
         case DO_LOAD:
           return "Load from EEPROM";
         case DO_SAVE:
