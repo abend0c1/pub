@@ -5,7 +5,7 @@ Program a button to send keystrokes to your computer
 
 PUB! is a Programmable USB Button on which you can program with a sequence of keystrokes. When you press the button those keystrokes are "replayed" over a USB connection.
 
-The button (really a rotary encoder with a builtin push button switch) is programmed using an innovative and slightly quirky interface that does not require any custom software to be installed on your computer. All you need is a text editor like Notepad or gedit.
+The button (really a rotary encoder with a built-in push button switch) is programmed using an innovative and slightly quirky interface that does not require any custom software to be installed on your computer. All you need is a text editor like Notepad or gedit.
 
 
 
@@ -32,7 +32,7 @@ The possibilities are fairly broad including:
 Construction
 ------------
 
-TODO
+See http://www.instructables.com/id/PUB-Programmable-USB-Button/
 
 How To Use
 ----------
@@ -75,7 +75,7 @@ How To Use
 
           PUB! Programmable USB Button v0.92
           Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit
-             0    Set Keystroke 03
+             0    Set Keystroke at 03
           At Code Action
           00 0006 c
           01 0004 a
@@ -95,7 +95,7 @@ How To Use
 
             PUB! Programmable USB Button v0.92
             Do:     Turn=Modify, Press=OK, Press+Turn=Set At, Press+Hold=Exit
-               0    Delete action at at 00
+               0    Delete action at 00
             At Code Action
             00 0006 c
             01 0004 a
