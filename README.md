@@ -3,7 +3,7 @@ PUB! Programmable USB Button
 Program a button to send keystrokes to your computer
 
 
-PUB! is a Programmable USB Button on which you can program with a sequence of keystrokes. When you press the button those keystrokes are "replayed" over a USB connection.
+PUB! is a Programmable USB Button on which you can program a sequence of keystrokes. When you press the button those keystrokes are "replayed" over a USB connection.
 
 The button (really a rotary encoder with a built-in push button switch) is programmed using an innovative and slightly quirky interface that does not require any custom software to be installed on your computer. All you need is a text editor like Notepad or gedit.
 
