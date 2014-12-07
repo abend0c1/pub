@@ -311,7 +311,7 @@ const char * getUsageDesc (t_action * pAction) // Note: Literals returned as con
         case EXECUTE_SAY:
           return "Say R";
         case EXECUTE_FORMAT:
-          return "Format";
+          return "Format ";
         case EXECUTE_ADD_IMMEDIATE:
           return "Let W = W + ";
         case EXECUTE_SUB_IMMEDIATE:
@@ -475,6 +475,14 @@ void sayModifiers(t_keyboardAction * pAction)
   if (pAction->mod & MODIFIER_LEFTCTL)     sayConst("CTL+");
   if (pAction->mod & MODIFIER_LEFTALT)     sayConst("ALT+");
   if (pAction->mod & MODIFIER_LEFTSHIFT)   sayConst("SHIFT+");
+}
+
+void sayChar(uint8_t c)
+{
+  char sString[2];
+  sString[0] = c;
+  sString[1] = '\0';
+  say(sString);
 }
 
 void sayHex(uint8_t c)
@@ -893,6 +901,21 @@ void sayUsage(uint8_t nAction, t_action * pAction)
         case EXECUTE_WAIT_MS:
           sayDec(pAction->key.usage);
           sayConst(" ms");
+          break;
+        case EXECUTE_FORMAT:
+          switch (pAction->key.usage)
+          {
+            case FORMAT_CHAR:
+              sayConst("Char");
+              break;
+            case FORMAT_DEC:
+              sayConst("Decimal");
+              break;
+            case FORMAT_HEX:
+            default:
+              sayConst("Hex");
+              break;
+          }
           break;
         default:
           sayHex(pAction->key.usage);
@@ -1399,7 +1422,7 @@ void playInstruction(t_action * pAction)
       switch (FORMAT)
       {
         case FORMAT_CHAR:
-          say(getMemory(pAction->inst.operand));     // For example: A
+          sayChar(getMemory(pAction->inst.operand)); // For example: A
           break;
         case FORMAT_DEC:
           sayDec(getMemory(pAction->inst.operand));  // For example: 65
