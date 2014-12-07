@@ -311,7 +311,7 @@ const char * getUsageDesc (t_action * pAction) // Note: Literals returned as con
         case EXECUTE_SAY:
           return "Say R";
         case EXECUTE_FORMAT:
-          return "Format ";
+          return "Say in ";
         case EXECUTE_ADD_IMMEDIATE:
           return "Let W = W + ";
         case EXECUTE_SUB_IMMEDIATE:
