@@ -158,7 +158,7 @@
 <rectangle x1="33.655" y1="13.97" x2="51.435" y2="21.59" layer="41"/>
 <rectangle x1="53.975" y1="28.575" x2="60.96" y2="34.925" layer="41"/>
 <rectangle x1="36.83" y1="5.08" x2="50.8" y2="13.97" layer="41"/>
-<text x="1.27" y="58.42" size="2.032" layer="121" font="vector">PUB! Programmable USB Button 0.90</text>
+<text x="1.27" y="58.42" size="2.032" layer="121" font="vector">PUB! Programmable USB Button 0.92</text>
 <text x="1.27" y="55.88" size="2.032" layer="121" font="vector">(C) 2014 androidarmstrong@gmail.com</text>
 <text x="1.27" y="53.34" size="2.032" layer="121" font="vector">https://github.com/abend0c1/pub</text>
 </plain>
@@ -1029,10 +1029,10 @@ design rules under a new name.</description>
 <wire x1="34.29" y1="25.4" x2="33.02" y2="24.13" width="0.4064" layer="1" curve="90"/>
 <wire x1="33.02" y1="24.13" x2="33.02" y2="20.955" width="0.4064" layer="1"/>
 <wire x1="33.02" y1="20.955" x2="32.385" y2="20.32" width="0.4064" layer="1" curve="-90"/>
-<wire x1="32.385" y1="20.32" x2="15.24" y2="20.32" width="0.4064" layer="1"/>
+<wire x1="32.385" y1="20.32" x2="16.51" y2="20.32" width="0.4064" layer="1"/>
 <contactref element="JP2" pad="5"/>
 <contactref element="JP1" pad="2"/>
-<wire x1="15.24" y1="20.32" x2="12.7" y2="20.32" width="0.4064" layer="1"/>
+<wire x1="16.51" y1="20.32" x2="12.7" y2="20.32" width="0.4064" layer="1"/>
 <wire x1="2.54" y1="41.91" x2="10.16" y2="41.91" width="0.4064" layer="16"/>
 <wire x1="2.54" y1="20.32" x2="10.16" y2="20.32" width="0.4064" layer="16"/>
 <wire x1="12.7" y1="20.32" x2="11.43" y2="21.59" width="0.4064" layer="1" curve="-90"/>
@@ -1043,8 +1043,9 @@ design rules under a new name.</description>
 <wire x1="18.4" y1="34.25" x2="18.36" y2="34.29" width="0.4064" layer="16" curve="90"/>
 <wire x1="18.36" y1="34.29" x2="16.51" y2="34.29" width="0.4064" layer="16"/>
 <wire x1="16.51" y1="34.29" x2="15.24" y2="33.02" width="0.4064" layer="16" curve="90"/>
-<wire x1="15.24" y1="33.02" x2="15.24" y2="20.32" width="0.4064" layer="16"/>
-<via x="15.24" y="20.32" extent="1-16" drill="0.4064"/>
+<via x="16.51" y="20.32" extent="1-16" drill="0.4064"/>
+<wire x1="15.24" y1="33.02" x2="15.24" y2="21.59" width="0.4064" layer="16"/>
+<wire x1="15.24" y1="21.59" x2="16.51" y2="20.32" width="0.4064" layer="16" curve="90"/>
 </signal>
 <signal name="N$9">
 <contactref element="IC1" pad="28"/>
