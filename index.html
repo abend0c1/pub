@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Pub by abend0c1</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Pub</h1>
+        <h2>PUB! is a Programmable USB Button on which you can record a sequence of keystrokes (and/or other USB functions) and then play that sequence back when you press it.</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/abend0c1/pub/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/abend0c1/pub/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/abend0c1/pub" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="pub-programmable-usb-button" class="anchor" href="#pub-programmable-usb-button" aria-hidden="true"><span class="octicon octicon-link"></span></a>PUB! Programmable USB Button</h1>
+
+<p>Program a button to send keystrokes to your computer</p>
+
+<p>PUB! is a Programmable USB Button on which you can program a sequence of keystrokes. When you press the button those keystrokes are "replayed" over a USB connection.</p>
+
+<p>The button (really a rotary encoder with a built-in push button switch) is programmed using an innovative and slightly quirky interface that does not require any custom software to be installed on your computer. All you need is a text editor like Notepad or gedit.</p>
+
+<h2>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>One-button design (a rotary encoder with a built in switch).</li>
+<li>Programmed by using an ordinary text editor as a display (for example, gedit on Linux, or Notepad on Windows).</li>
+<li>Up to 127 keystrokes can be recorded and played back.</li>
+<li>Support for conditional logic. For example, Compare to value, Jump on zero, etc.</li>
+<li>Support for 256 x 8-bit "registers" to record state.</li>
+<li>Support for basic arithmetic. Add, subtract, etc.</li>
+<li>Can send USB System Control codes (Power off, sleep, wake) to your PC</li>
+<li>Can send USB Consumer Device functions (e.g. Mute, Play, Pause, Stop, etc.)</li>
+<li>Requires NO drivers (or custom software) for Windows/Linux etc</li>
+</ul>
+
+<h2>
+<a id="futures" class="anchor" href="#futures" aria-hidden="true"><span class="octicon octicon-link"></span></a>Futures</h2>
+
+<p>The possibilities are fairly broad including:</p>
+
+<ul>
+<li>Using a Bluetooth module to detect proximity of the button owner's mobile phone so that the USB button is only enabled when its owner is near.</li>
+<li>Addition of an external EEPROM for extra keystroke capacity.</li>
+<li>The one-button user interface will be improved to make it easier to use.</li>
+</ul>
+
+<h2>
+<a id="construction" class="anchor" href="#construction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Construction</h2>
+
+<p>See <a href="http://www.instructables.com/id/PUB-Programmable-USB-Button/">http://www.instructables.com/id/PUB-Programmable-USB-Button/</a></p>
+
+<h2>
+<a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>How To Use</h2>
+
+<h3>
+<a id="you-want-to-program-your-password-onto-the-pub-button" class="anchor" href="#you-want-to-program-your-password-onto-the-pub-button" aria-hidden="true"><span class="octicon octicon-link"></span></a>You want to program your password onto the PUB! button</h3>
+
+<ul>
+<li>Open a text editing program (for example, gedit or Notepad) and make sure it has keyboard focus</li>
+<li>Plug PUB! into a host USB port</li>
+<li>
+<p>By default it is in RUN mode, so press and hold the rotary encoder knob for more than 1 second to switch to PROGRAM mode. It will display in your text editor:</p>
+
+<pre><code>  PUB! Programmable USB Button v0.92
+  Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit
+     0    Set Keystroke at 00
+  At Code Action
+</code></pre>
+</li>
+<li>
+<p>Press the rotary knob to set a keystroke. It will display:</p>
+
+<pre><code>  PUB! Programmable USB Button v0.92
+  Key:    Turn=Select, Press+Turn=Modify, Press=OK, Press+Hold=Return
+  00 0004 a
+  At Code Action
+</code></pre>
+</li>
+<li>
+<p>Turn the rotary knob to choose the first letter of your password (say c) and then press the knob to add it to the list of actions:</p>
+
+<pre><code>  PUB! Programmable USB Button v0.92
+  Key:    Turn=Select, Press+Turn=Modify, Press=OK, Press+Hold=Return
+  01 0006 c
+  At Code Action
+  00 0006 c
+</code></pre>
+</li>
+<li>
+<p>Continue choosing and adding the remaining letters (say, a and t):</p>
+
+<pre><code>  PUB! Programmable USB Button v0.92
+  Key:    Turn=Select, Press+Turn=Modify, Press=OK, Press+Hold=Return
+  03 0017 t
+  At Code Action
+  00 0006 c
+  01 0004 a
+  02 0017 t
+</code></pre>
+</li>
+<li>
+<p>Press and hold the rotary knob to Return to the main menu:</p>
+
+<pre><code>  PUB! Programmable USB Button v0.92
+  Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit
+     0    Set Keystroke at 03
+  At Code Action
+  00 0006 c
+  01 0004 a
+  02 0017 t
+</code></pre>
+</li>
+<li>
+<p>Rotate the knob until "Do Local Function" is displayed:</p>
+
+<pre><code>  PUB! Programmable USB Button v0.92
+  Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit
+     0    Do Local Function at 03
+  At Code Action
+  00 0006 c
+  01 0004 a
+  02 0017 t
+</code></pre>
+</li>
+<li>
+<p>Press the knob to enter the "Do" menu:</p>
+
+<pre><code>    PUB! Programmable USB Button v0.92
+    Do:     Turn=Modify, Press=OK, Press+Turn=Set At, Press+Hold=Exit
+       0    Delete action at 00
+    At Code Action
+    00 0006 c
+    01 0004 a
+    02 0017 t
+</code></pre>
+</li>
+<li>
+<p>Press-and-rotate the knob anticlockwise until "Save to EEPROM" is displayed:</p>
+
+<pre><code>  PUB! Programmable USB Button v0.92
+  Do:     Turn=Modify, Press+Turn=Select, Press=OK, Press+Hold=Return
+          Save to EEPROM
+  At Code Action
+  00 0006 c
+  01 0004 a
+  02 0017 t
+</code></pre>
+</li>
+<li>
+<p>Press the knob to save "cat" to the EEPROM</p>
+
+<pre><code>  Saved in EEPROM
+</code></pre>
+</li>
+<li>
+<p>The device is now in RUN mode. Press the knob to "play" the recorded sequence:</p>
+
+<pre><code>  cat
+</code></pre>
+</li>
+</ul>
+
+<h3>
+<a id="an-example-of-some-conditional-logic" class="anchor" href="#an-example-of-some-conditional-logic" aria-hidden="true"><span class="octicon octicon-link"></span></a>An example of some conditional logic</h3>
+
+<ul>
+<li>
+<p>Enter the following program into the PUB! device:</p>
+
+<pre><code>  At Code Action
+  00 E005 Let W = 05
+  01 E200 Put W in R00
+  02 0006 c
+  03 0004 a
+  04 0017 t
+  05 002C Space
+  06 E500 Say R00
+  07 0028 Enter
+  08 EF01 Wait 1 sec
+  09 E801 Let W = W - 01
+  0A F701 Jump if Not Zero to 01
+</code></pre>
+</li>
+<li>
+<p>Now when you press the knob in run mode you should see the following displayed (1 second wait between lines):</p>
+
+<pre><code>  cat 05
+  cat 04
+  cat 03
+  cat 02
+  cat 01
+</code></pre>
+</li>
+</ul>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
