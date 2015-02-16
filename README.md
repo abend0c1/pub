@@ -2,6 +2,7 @@ PUB! Programmable USB Button
 ============================
 Program a button to send keystrokes to your computer
 
+![prototype](images/pub-prototype.jpg)
 
 PUB! is a Programmable USB Button on which you can program a sequence of keystrokes. When you press the button those keystrokes are "replayed" over a USB connection.
 
