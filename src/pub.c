@@ -129,12 +129,12 @@ OPERATION - The user interacts with the system via a digital encoder knob with
               PUB! Programmable USB Button vn.nn
               Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit
                  0    Set Keystroke at 00
-                 
+
               At Code Action
 
             - Rotate the knob to choose between the available menu functions
               which are currently:
-              
+
               Set Keystroke
               Set System Control function
               Set Consumer Device function
@@ -159,7 +159,7 @@ OPERATION - The user interacts with the system via a digital encoder knob with
 
             - Press the knob to append the displayed keystroke to the list of
               keystrokes (or functions) to be recorded.
-              
+
             - Select and append more keystrokes as required.
 
             - Press and hold the knob to return to the main menu.
@@ -195,6 +195,7 @@ CREDITS  - Rotary encoder logic based on code originally written by Ben Buxton.
 
 HISTORY  - Date     Ver   By  Reason (most recent at the top please)
            -------- ----- --- -------------------------------------------------
+           20161030 0.93  AJA Detected the Caps Lock state
            20141130 0.92  AJA Added arithmetic and conditional jump instructions
            20141108 0.91  AJA Fixed PCB to match code. Rotary button on RB6
            20141012 0.90  AJA First published version
@@ -291,7 +292,7 @@ const char * getUsageDesc (t_action * pAction) // Note: Literals returned as con
           return "Save to EEPROM";
         case DO_REDISPLAY:
           return "Redisplay";
-        default: 
+        default:
           return "";
       }
 
@@ -373,7 +374,7 @@ const char * getUsageDesc (t_action * pAction) // Note: Literals returned as con
           break;
       }
 
-    default: 
+    default:
       return "";
   }
 }
@@ -384,6 +385,34 @@ void toPrintableHex(uint8_t c, char * p)
   *p++ = HEX[(c & 0xF0) >> 4];
   *p++ = HEX[(c & 0x0F)     ];
   *p   = '\0';
+}
+
+void adjustShiftModifier ()
+{
+  if (usbToHost[3] >= USB_KEY_A && usbToHost[3] <= USB_KEY_Z)  // Handle SHIFT for alphabetics
+  {
+    // If the user wants SHIFT+A to be sent to the host, then it is reasonable
+    // to expect it to be interpreted by the host as an uppercase "A". But, if
+    // the Caps Lock indicator is on, SHIFT+A would result in the host seeing
+    // it as a lowercase "a"...UNLESS we can choose to set the SHIFT modifier
+    // depending on the current state of the Caps Lock LED indicator.
+
+    // Truth table:
+    // input       input           output
+    // modifiers   Caps Lock       modifiers
+    // SHIFT bit   LED light       SHIFT bit   Result at host
+    // ---------   ---------  -->  ---------   --------------
+    //     0           0               0             a
+    //     0           1               1             a
+    //     1           0               1             A
+    //     1           1               0             A
+    // This is a classic Exclusive-OR truth table, from which we can code:
+
+    if ((usbToHost[1] & SHIFT) != leds.bits.CapsLock) // Logical Exclusive-OR
+      usbToHost[1] |= SHIFT;              // SHIFT modifier bit = 1
+    else
+      usbToHost[1] &= ~SHIFT;             // SHIFT modifier bit = 0
+  }
 }
 
 
@@ -430,14 +459,16 @@ void playKeystroke(t_action * pAction)
   usbToHost[1] = pAction->key.mod;          // Ctrl/Alt/Shift modifiers
   usbToHost[2] = 0;                         // Reserved for OEM
   usbToHost[3] = pAction->key.usage;        // Key pressed
+  adjustShiftModifier();                    // Adjust SHIFT for alphabetics
   while(!HID_Write(&usbToHost, 4));         // Copy to USB buffer and try to send
+  usbToHost[1] = pAction->key.mod;          // Reset modifiers to what was requested
 }
 
 void say(uint8_t * p)
 {
   uint8_t c;
   t_action action;
-  
+
   while (*p)
   {
     if (*p < sizeof(ASCII_to_USB))
@@ -517,32 +548,9 @@ void sayKey(uint8_t modifiers, uint8_t key)
   usbToHost[1] = modifiers;               // Ctrl/Alt/Shift modifiers
   usbToHost[2] = 0;                       // Reserved for OEM
   usbToHost[3] = key;                     // Key pressed
+  adjustShiftModifier();                  // Adjust SHIFT for alphabetics
   while(!HID_Write(&usbToHost, 4));       // Copy to USB buffer and try to send
   sayNoKeyPressed();                      // Release key
-}
-
-void resetKeyboardState() // ...this doesn't really work (with Ubuntu anyway)
-{
-  t_ledIndicators leds;
-  if (!bUSBReady) return;
-  sayKey(0, CAPS_LOCK); // Elicit LED indicator response
-  // Read the state of the CapsLock, NumLock and ScrollLock LEDs
-  if (HID_Read())
-  {
-    if (usbFromHost[0] == REPORT_ID_KEYBOARD)
-    {
-      leds.byte = usbFromHost[1];
-      sayConst("L");
-      sayHex(leds.byte);
-      if (!leds.bits.NumLock)   sayKey(0, NUM_LOCK);      // Turn on num lock
-      if (leds.bits.CapsLock)
-      {
-        sayKey(0, CAPS_LOCK);     // Turn off caps lock
-        sayConst("z\n");
-      }
-      if (leds.bits.ScrollLock) sayKey(0, SCROLL_LOCK);   // Turn off scroll lock
-    }
-  }
 }
 
 void enableUSB()
@@ -570,7 +578,6 @@ void enableUSB()
     }
   }
   Delay_ms(250);
-  //resetKeyboardState();
 }
 
 void disableUSB()
@@ -865,7 +872,7 @@ void sayUsage(uint8_t nAction, t_action * pAction)
     sayHex(pAction->key.usage);
     sayKey(NONE, SPACE);
   }
-  
+
   switch (pAction->key.page)
   {
     case PAGE_KEYBOARD:
@@ -1240,7 +1247,7 @@ void changeUsage()
         case DO_DELETE:                     // Delete action
           deleteAction(action.key.usage);
           break;
-          
+
         case DO_SAVE:
           saveInEEPROM();
           clearDisplay();
@@ -1401,19 +1408,19 @@ void playInstruction(t_action * pAction)
     case EXECUTE_SET:                 // W = xx    (load constant xx)
       WRK = pAction->inst.operand;
       break;
-      
+
     case EXECUTE_GET:                 // W <- [xx] (load contents of "memory" at index xx)
       WRK = getMemory(pAction->inst.operand);
       break;
-      
+
     case EXECUTE_PUT:                 // W -> [xx]
       setMemory(pAction->inst.operand, WRK);
       break;
-      
+
     case EXECUTE_COMPARE_IMMEDIATE:   // W : xx
       setConditionCode(WRK - pAction->inst.operand);
       break;
-        
+
     case EXECUTE_COMPARE:             // W : [xx]
       setConditionCode(WRK - getMemory(pAction->inst.operand));
       break;
@@ -1616,9 +1623,14 @@ void runMode()
 
 void main()
 {
+  uint8_t nRead;
   Prolog();
   while (1)
   {
+    if (HID_Read() == 2 && usbFromHost[0] == REPORT_ID_KEYBOARD)   // If a host LED indication response is available
+    {
+      leds.byte = usbFromHost[1];   // Remember the most recent LED status change
+    }
     bProgramMode ? programMode() : runMode();
   }
 }
@@ -1643,7 +1655,7 @@ void interrupt()               // High priority interrupt service routine
     TMR0IF_bit = 0;            // Clear the Timer0 interrupt flag
   }
   if (TMR3IF_bit)              // Timer3 interrupt? (22.9 times/second)
-  {    
+  {
     nRemainingTimerTicks--;    // Decrement delay count
     TMR3IF_bit = 0;            // Clear the Timer3 interrupt flag
   }

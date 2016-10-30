@@ -28,7 +28,7 @@ Futures
 The possibilities are fairly broad including:
 - Using a Bluetooth module to detect proximity of the button owner's mobile phone so that the USB button is only enabled when its owner is near.
 - Addition of an external EEPROM for extra keystroke capacity.
-- The one-button user interface will be improved to make it easier to use.
+- The one-button user interface could be improved to make it easier to use.
 
 Construction
 ------------
@@ -42,21 +42,21 @@ How To Use
   - Plug PUB! into a host USB port
   - By default it is in RUN mode, so press and hold the rotary encoder knob for more than 1 second to switch to PROGRAM mode. It will display in your text editor:
 
-          PUB! Programmable USB Button v0.92
+          PUB! Programmable USB Button v0.93
           Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit
              0    Set Keystroke at 00
           At Code Action
 
   - Press the rotary knob to set a keystroke. It will display:
 
-          PUB! Programmable USB Button v0.92
+          PUB! Programmable USB Button v0.93
           Key:    Turn=Select, Press+Turn=Modify, Press=OK, Press+Hold=Return
           00 0004 a
           At Code Action
 
   - Turn the rotary knob to choose the first letter of your password (say c) and then press the knob to add it to the list of actions:
 
-          PUB! Programmable USB Button v0.92
+          PUB! Programmable USB Button v0.93
           Key:    Turn=Select, Press+Turn=Modify, Press=OK, Press+Hold=Return
           01 0006 c
           At Code Action
@@ -64,7 +64,7 @@ How To Use
 
   - Continue choosing and adding the remaining letters (say, a and t):
 
-          PUB! Programmable USB Button v0.92
+          PUB! Programmable USB Button v0.93
           Key:    Turn=Select, Press+Turn=Modify, Press=OK, Press+Hold=Return
           03 0017 t
           At Code Action
@@ -74,7 +74,7 @@ How To Use
 
   - Press and hold the rotary knob to Return to the main menu:
 
-          PUB! Programmable USB Button v0.92
+          PUB! Programmable USB Button v0.93
           Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit
              0    Set Keystroke at 03
           At Code Action
@@ -84,7 +84,7 @@ How To Use
 
   - Rotate the knob until "Do Local Function" is displayed:
 
-          PUB! Programmable USB Button v0.92
+          PUB! Programmable USB Button v0.93
           Main:   Turn=Select, Press=OK, Press+Turn=Set At, Press+Hold=Exit
              0    Do Local Function at 03
           At Code Action
@@ -94,7 +94,7 @@ How To Use
 
   - Press the knob to enter the "Do" menu:
 
-            PUB! Programmable USB Button v0.92
+            PUB! Programmable USB Button v0.93
             Do:     Turn=Modify, Press=OK, Press+Turn=Set At, Press+Hold=Exit
                0    Delete action at 00
             At Code Action
@@ -104,7 +104,7 @@ How To Use
 
   - Press-and-rotate the knob anticlockwise until "Save to EEPROM" is displayed:
 
-          PUB! Programmable USB Button v0.92
+          PUB! Programmable USB Button v0.93
           Do:     Turn=Modify, Press+Turn=Select, Press=OK, Press+Hold=Return
                   Save to EEPROM
           At Code Action

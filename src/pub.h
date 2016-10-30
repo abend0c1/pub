@@ -1,4 +1,4 @@
-#define VERSION "0.92"
+#define VERSION "0.93"
 
 #define OUTPUT        0
 #define INPUT         1
@@ -203,6 +203,7 @@ uint8_t BANK4_RESERVED_FOR_USB[256] absolute 0x400; // Prevent compiler from all
 uint8_t usbFromHost[1+1] absolute 0x500;  // Buffer for PIC <-- Host (ReportId + 1 byte)
 uint8_t usbToHost[1+3]   absolute 0x508;  // Buffer for PIC --> Host (ReportId + 3 bytes)
 
+t_ledIndicators leds;
 
 union
 {

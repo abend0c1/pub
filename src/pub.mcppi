@@ -6,7 +6,7 @@ Value=0
 [BUILD_TYPE]
 Value=0
 [ACTIVE_TAB]
-Value=pub.c
+Value=USBdsc.c
 [USE_EEPROM]
 Value=0
 [USE_HEAP]
@@ -25,9 +25,7 @@ Count=0
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=2
-File0=pub.c
-File1=pub.h
+Count=0
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -36,12 +34,12 @@ Count=0
 Count=0
 [SEARCH_PATH]
 Count=3
-Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
+Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
-Path2=E:\_work\projects\pub\src\
+Path2=E:\projects\pub\src\
 [HEADER_PATH]
 Count=1
-Path0=E:\_work\projects\pub\src\
+Path0=E:\projects\pub\src\
 [HEADERS]
 Count=2
 File0=USBdsc.h
@@ -54,8 +52,8 @@ File0=USB
 File1=C_String
 File2=Conversions
 File3=EEPROM
-[EXPANDED NODES]
-Node1=Sources
-Node2=Header Files
-Node3=Output Files
+[EXPANDED_NODES]
+Node0=Sources
+Node1=Header Files
+Node2=Output Files
 Count=3
